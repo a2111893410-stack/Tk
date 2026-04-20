@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>短视频</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: #000;
+font-family: -apple-system, ‘PingFang SC’, ‘Helvetica Neue’, sans-serif;
+overflow: hidden;
+height: 100vh;
+width: 100vw;
+color: #fff;
+}
+
+#app {
+position: relative;
+width: 100%;
+height: 100%;
+overflow: hidden;
+}
+
+/* ── 视频容器 ── */
+.feed {
+height: 100%;
+width: 100%;
+position: relative;
+}
+
+.video-item {
+position: absolute;
+top: 0; left: 0;
+width: 100%;
+height: 100%;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+will-change: transform;
+}
+
+.video-item video {
+width: 100%;
+height: 100%;
+object-fit: cover;
+background: #111;
+}
+
+/* ── 顶部导航 ── */
+.top-nav {
+position: fixed;
+top: 0; left: 0; right: 0;
+z-index: 100;
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 24px;
+padding: 16px 0 12px;
+background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%);
+}
+
+.nav-tab {
+font-size: 16px;
+color: rgba(255,255,255,0.6);
+font-weight: 500;
+cursor: pointer;
+padding: 4px 0;
+position: relative;
+letter-spacing: 0.5px;
+}
+
+.nav-tab.active {
+color: #fff;
+font-weight: 700;
+font-size: 17px;
+}
+
+.nav-tab.active::after {
+content: ‘’;
+position: absolute;
+bottom: -4px;
+left: 50%;
+transform: translateX(-50%);
+width: 20px;
+height: 3px;
+background: #fff;
+border-radius: 2px;
+}
+
+/* ── 搜索图标 ── */
+.top-search {
+position: fixed;
+top: 14px;
+right: 16px;
+z-index: 100;
+}
+
+.top-search svg { width: 24px; height: 24px; fill: #fff; }
+
+/* ── 右侧操作栏 ── */
+.action-bar {
+position: fixed;
+right: 12px;
+bottom: 90px;
+z-index: 100;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 20px;
+}
+
+.action-btn {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 4px;
+cursor: pointer;
+-webkit-tap-highlight-color: transparent;
+}
+
+.action-icon {
+width: 48px;
+height: 48px;
+display: flex;
+align-items: center;
+justify-content: center;
+position: relative;
+}
+
+.action-icon svg {
+width: 32px;
+height: 32px;
+filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+}
+
+.action-label {
+font-size: 12px;
+color: #fff;
+font-weight: 500;
+text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+letter-spacing: 0.2px;
+}
+
+/* 点赞动画 */
+.action-btn.liked .heart-icon {
+animation: heartPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes heartPop {
+0% { transform: scale(1); }
+40% { transform: scale(1.4); }
+100% { transform: scale(1); }
+}
+
+/* 头像 */
+.avatar-wrap {
+position: relative;
+width: 48px;
+height: 48px;
+margin-bottom: 4px;
+}
+
+.avatar {
+width: 48px;
+height: 48px;
+border-radius: 50%;
+border: 2px solid #fff;
+object-fit: cover;
+background: linear-gradient(135deg, #f093fb, #f5576c, #4facfe);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 20px;
+font-weight: 700;
+color: #fff;
+overflow: hidden;
+}
+
+.follow-btn {
+position: absolute;
+bottom: -8px;
+left: 50%;
+transform: translateX(-50%);
+width: 20px;
+height: 20px;
+background: #fe2c55;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 16px;
+line-height: 1;
+color: #fff;
+font-weight: 300;
+cursor: pointer;
+box-shadow: 0 2px 6px rgba(254,44,85,0.5);
+}
+
+/* ── 底部信息 ── */
+.video-info {
+position: fixed;
+left: 16px;
+right: 80px;
+bottom: 90px;
+z-index: 100;
+}
+
+.video-username {
+font-size: 16px;
+font-weight: 700;
+color: #fff;
+margin-bottom: 8px;
+text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.video-desc {
+font-size: 14px;
+color: rgba(255,255,255,0.9);
+line-height: 1.5;
+margin-bottom: 10px;
+text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.video-desc .hashtag {
+color: #69c9d0;
+font-weight: 600;
+}
+
+/* 音乐滚动条 */
+.music-row {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.music-icon {
+width: 16px;
+height: 16px;
+flex-shrink: 0;
+}
+
+.music-scroll {
+flex: 1;
+overflow: hidden;
+white-space: nowrap;
+position: relative;
+}
+
+.music-name {
+font-size: 13px;
+color: rgba(255,255,255,0.85);
+display: inline-block;
+animation: scrollText 8s linear infinite;
+}
+
+@keyframes scrollText {
+0% { transform: translateX(0); }
+40% { transform: translateX(-50%); }
+50% { transform: translateX(-50%); }
+90% { transform: translateX(0); }
+100% { transform: translateX(0); }
+}
+
+/* ── 底部导航 ── */
+.bottom-nav {
+position: fixed;
+bottom: 0; left: 0; right: 0;
+height: 82px;
+background: rgba(0,0,0,0.85);
+backdrop-filter: blur(10px);
+display: flex;
+align-items: flex-start;
+padding-top: 10px;
+z-index: 100;
+border-top: 0.5px solid rgba(255,255,255,0.08);
+}
+
+.nav-item {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 3px;
+cursor: pointer;
+-webkit-tap-highlight-color: transparent;
+}
+
+.nav-item svg { width: 26px; height: 26px; }
+.nav-item span {
+font-size: 10px;
+color: rgba(255,255,255,0.5);
+font-weight: 500;
+}
+.nav-item.active span { color: #fff; }
+.nav-item.active svg { fill: #fff; }
+
+/* 中间发布按钮 */
+.nav-plus {
+flex: 1;
+display: flex;
+align-items: flex-start;
+justify-content: center;
+padding-top: 2px;
+cursor: pointer;
+}
+
+.plus-btn {
+width: 44px;
+height: 30px;
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.plus-btn::before {
+content: ‘’;
+position: absolute;
+left: -6px;
+top: 0;
+width: 32px;
+height: 100%;
+background: #69c9d0;
+border-radius: 8px;
+}
+
+.plus-btn::after {
+content: ‘’;
+position: absolute;
+right: -6px;
+top: 0;
+width: 32px;
+height: 100%;
+background: #fe2c55;
+border-radius: 8px;
+}
+
+.plus-inner {
+width: 36px;
+height: 100%;
+background: #fff;
+border-radius: 6px;
+display: flex;
+align-items: center;
+justify-content: center;
+position: relative;
+z-index: 1;
+font-size: 22px;
+color: #000;
+font-weight: 300;
+line-height: 1;
+}
+
+/* ── 飘心动画 ── */
+.float-heart {
+position: fixed;
+right: 36px;
+font-size: 32px;
+pointer-events: none;
+z-index: 200;
+animation: floatUp 1s ease-out forwards;
+}
+
+@keyframes floatUp {
+0%   { opacity: 1; transform: translateY(0) scale(0.8) rotate(-15deg); }
+50%  { opacity: 1; transform: translateY(-80px) scale(1.2) rotate(10deg); }
+100% { opacity: 0; transform: translateY(-160px) scale(0.6) rotate(-5deg); }
+}
+
+/* ── 播放暂停提示 ── */
+.play-indicator {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+z-index: 200;
+pointer-events: none;
+opacity: 0;
+transition: opacity 0.2s;
+}
+
+.play-indicator.show {
+opacity: 1;
+animation: fadeOut 0.8s 0.3s forwards;
+}
+
+@keyframes fadeOut {
+to { opacity: 0; }
+}
+
+.play-indicator svg {
+width: 72px;
+height: 72px;
+filter: drop-shadow(0 2px 12px rgba(0,0,0,0.5));
+}
+
+/* ── 旋转唱片 ── */
+.disc {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+border: 3px solid #333;
+position: relative;
+animation: spin 4s linear infinite;
+flex-shrink: 0;
+overflow: hidden;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.disc::after {
+content: ‘’;
+width: 12px;
+height: 12px;
+border-radius: 50%;
+background: #1a1a1a;
+border: 2px solid #444;
+position: absolute;
+}
+
+@keyframes spin {
+from { transform: rotate(0deg); }
+to { transform: rotate(360deg); }
+}
+
+/* ── 滑动提示 ── */
+.swipe-hint {
+position: fixed;
+bottom: 110px;
+left: 50%;
+transform: translateX(-50%);
+z-index: 100;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 4px;
+opacity: 0.7;
+animation: bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes bounce {
+0%, 100% { transform: translateX(-50%) translateY(0); }
+50% { transform: translateX(-50%) translateY(-8px); }
+}
+
+.swipe-hint svg { width: 20px; height: 20px; fill: rgba(255,255,255,0.6); }
+.swipe-hint span { font-size: 11px; color: rgba(255,255,255,0.5); }
+
+/* 进度条 */
+.progress-bar {
+position: fixed;
+bottom: 82px;
+left: 0; right: 0;
+height: 2px;
+background: rgba(255,255,255,0.2);
+z-index: 100;
+}
+
+.progress-fill {
+height: 100%;
+background: rgba(255,255,255,0.7);
+width: 0%;
+transition: width 0.2s linear;
+}
+</style>
+
+</head>
+<body>
+<div id="app">
+
+  <!-- 顶部导航 -->
+
+  <div class="top-nav">
+    <div class="nav-tab">关注</div>
+    <div class="nav-tab active">推荐</div>
+  </div>
+  <div class="top-search">
+    <svg viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  </div>
+
+  <!-- 视频 feed -->
+
+  <div class="feed" id="feed">
+    <div class="video-item" id="videoItem" style="transform: translateY(0)">
+      <video
+        id="mainVideo"
+        src="https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeie53svjmqhznjlosvlkvtu7cckzrgwexo3h2ljvartpuhzsr3kdki"
+        loop
+        playsinline
+        webkit-playsinline
+        preload="auto"
+      ></video>
+    </div>
+  </div>
+
+  <!-- 进度条 -->
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <!-- 播放/暂停指示 -->
+
+  <div class="play-indicator" id="playIndicator">
+    <svg viewBox="0 0 24 24" fill="rgba(255,255,255,0.85)"><path d="M8 5v14l11-7z"/></svg>
+  </div>
+
+  <!-- 右侧操作栏 -->
+
+  <div class="action-bar">
+    <!-- 头像 -->
+    <div class="action-btn" style="margin-bottom:4px">
+      <div class="avatar-wrap">
+        <div class="avatar">🎬</div>
+        <div class="follow-btn">+</div>
+      </div>
+    </div>
+
+```
+<!-- 点赞 -->
+<div class="action-btn" id="likeBtn" onclick="toggleLike()">
+  <div class="action-icon">
+    <svg class="heart-icon" viewBox="0 0 24 24" id="heartSvg" fill="rgba(255,255,255,0.9)">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
+  </div>
+  <span class="action-label" id="likeCount">2.4万</span>
+</div>
+
+<!-- 评论 -->
+<div class="action-btn" onclick="showToast('评论功能开发中~')">
+  <div class="action-icon">
+    <svg viewBox="0 0 24 24" fill="rgba(255,255,255,0.9)">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  </div>
+  <span class="action-label">386</span>
+</div>
+
+<!-- 收藏 -->
+<div class="action-btn" id="collectBtn" onclick="toggleCollect()">
+  <div class="action-icon">
+    <svg viewBox="0 0 24 24" id="starSvg" fill="rgba(255,255,255,0.9)">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+  </div>
+  <span class="action-label" id="collectCount">1.1万</span>
+</div>
+
+<!-- 分享 -->
+<div class="action-btn" onclick="showToast('分享功能开发中~')">
+  <div class="action-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round">
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+      <polyline points="16 6 12 2 8 6"/>
+      <line x1="12" y1="2" x2="12" y2="15"/>
+    </svg>
+  </div>
+  <span class="action-label">分享</span>
+</div>
+
+<!-- 旋转唱片 -->
+<div class="disc"></div>
+```
+
+  </div>
+
+  <!-- 底部视频信息 -->
+
+  <div class="video-info">
+    <div class="video-username">@我的Pinata视频</div>
+    <div class="video-desc">
+      这是存在IPFS上的视频 🎉
+      <span class="hashtag">#去中心化存储 #Web3 #IPFS</span>
+    </div>
+    <div class="music-row">
+      <svg class="music-icon" viewBox="0 0 24 24" fill="rgba(255,255,255,0.8)">
+        <path d="M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm12-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+      </svg>
+      <div class="music-scroll">
+        <span class="music-name">原声 - IPFS去中心化存储演示 · 原声 - IPFS去中心化存储演示</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 滑动提示（首次） -->
+
+  <div class="swipe-hint" id="swipeHint">
+    <svg viewBox="0 0 24 24"><path d="M12 2l-5 5h10l-5-5zm0 20l5-5H7l5 5z"/></svg>
+    <span>上划刷新</span>
+  </div>
+
+  <!-- 底部导航栏 -->
+
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="#fff"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>首页</span>
+    </div>
+    <div class="nav-item" onclick="showToast('敬请期待~')">
+      <svg viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      <span>搜索</span>
+    </div>
+    <div class="nav-plus">
+      <div class="plus-btn" onclick="showToast('发布功能开发中~')">
+        <div class="plus-inner">＋</div>
+      </div>
+    </div>
+    <div class="nav-item" onclick="showToast('敬请期待~')">
+      <svg viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+      <span>消息</span>
+    </div>
+    <div class="nav-item" onclick="showToast('敬请期待~')">
+      <svg viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>我</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast 提示 -->
+
+<div id="toast" style="
+  position:fixed; bottom:110px; left:50%; transform:translateX(-50%);
+  background:rgba(0,0,0,0.75); color:#fff; padding:8px 20px;
+  border-radius:20px; font-size:13px; z-index:300;
+  opacity:0; transition:opacity 0.2s; pointer-events:none; white-space:nowrap;
+"></div>
+
+<script>
+  const video = document.getElementById('mainVideo');
+  const progressFill = document.getElementById('progressFill');
+  const playIndicator = document.getElementById('playIndicator');
+  const swipeHint = document.getElementById('swipeHint');
+  let liked = false;
+  let collected = false;
+  let likeNum = 24000;
+  let collectNum = 11000;
+
+  // 自动播放
+  video.addEventListener('canplay', () => {
+    video.play().catch(() => {});
+  });
+
+  // 进度条
+  video.addEventListener('timeupdate', () => {
+    if (video.duration) {
+      progressFill.style.width = (video.currentTime / video.duration * 100) + '%';
+    }
+  });
+
+  // 点击暂停/播放
+  document.getElementById('feed').addEventListener('click', () => {
+    if (video.paused) {
+      video.play();
+      showPlayPause(false);
+    } else {
+      video.pause();
+      showPlayPause(true);
+    }
+  });
+
+  function showPlayPause(isPause) {
+    playIndicator.querySelector('path').setAttribute('d',
+      isPause ? 'M8 5v14l11-7z' : 'M10 9v6m4-6v6'
+    );
+    playIndicator.classList.remove('show');
+    void playIndicator.offsetWidth;
+    playIndicator.classList.add('show');
+  }
+
+  // 点赞
+  function toggleLike() {
+    liked = !liked;
+    const btn = document.getElementById('likeBtn');
+    const svg = document.getElementById('heartSvg');
+    if (liked) {
+      likeNum++;
+      svg.setAttribute('fill', '#fe2c55');
+      btn.classList.add('liked');
+      spawnHeart();
+    } else {
+      likeNum--;
+      svg.setAttribute('fill', 'rgba(255,255,255,0.9)');
+      btn.classList.remove('liked');
+    }
+    document.getElementById('likeCount').textContent = formatNum(likeNum);
+    setTimeout(() => btn.classList.remove('liked'), 400);
+  }
+
+  // 收藏
+  function toggleCollect() {
+    collected = !collected;
+    const svg = document.getElementById('starSvg');
+    if (collected) {
+      collectNum++;
+      svg.setAttribute('fill', '#ffd700');
+    } else {
+      collectNum--;
+      svg.setAttribute('fill', 'rgba(255,255,255,0.9)');
+    }
+    document.getElementById('collectCount').textContent = formatNum(collectNum);
+  }
+
+  function formatNum(n) {
+    if (n >= 10000) return (n / 10000).toFixed(1) + '万';
+    return n.toString();
+  }
+
+  // 飘心
+  function spawnHeart() {
+    const heart = document.createElement('div');
+    heart.className = 'float-heart';
+    heart.textContent = '❤️';
+    heart.style.bottom = (90 + Math.random() * 40) + 'px';
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 1000);
+  }
+
+  // Toast
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.opacity = '1';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.style.opacity = '0', 2000);
+  }
+
+  // 滑动手势（模拟"还有更多"效果）
+  let startY = 0;
+  let isDragging = false;
+  const feed = document.getElementById('feed');
+  const videoItem = document.getElementById('videoItem');
+
+  feed.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    isDragging = true;
+    // 隐藏滑动提示
+    swipeHint.style.display = 'none';
+  }, { passive: true });
+
+  feed.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    const dy = e.touches[0].clientY - startY;
+    // 只允许向上拉（dy < 0）有弹性效果
+    if (dy < 0) {
+      videoItem.style.transition = 'none';
+      videoItem.style.transform = `translateY(${dy * 0.2}px)`;
+    }
+  }, { passive: true });
+
+  feed.addEventListener('touchend', e => {
+    isDragging = false;
+    videoItem.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    videoItem.style.transform = 'translateY(0)';
+    const dy = e.changedTouches[0].clientY - startY;
+    if (dy < -60) {
+      showToast('已经是最新视频啦，快去上传更多吧 🎬');
+    }
+  }, { passive: true });
+</script>
+
+</body>
+</html>
