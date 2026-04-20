@@ -1,379 +1,704 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>短视频 APP 版 UI 精确优化</title>
-    <style>
-        :root {
-            --dy-red: #fe2c55;
-            --dy-cyan: #25f4ee;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>抖音</title>
+<style>
+  :root {
+    --red: #fe2c55;
+    --cyan: #25f4ee;
+  }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+- { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        body {
-            background: #000;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-            color: #fff;
-        }
+body {
+background: #000;
+font-family: -apple-system, “PingFang SC”, “Helvetica Neue”, sans-serif;
+overflow: hidden;
+height: 100vh; width: 100vw;
+color: #fff;
+user-select: none;
+}
 
-        #app {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
+/* ── 视频全屏 ── */
+#videoLayer {
+position: fixed;
+inset: 0;
+z-index: 1;
+}
 
-        /* ── 视频层 ── */
-        .video-container {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1;
-        }
+#mainVideo {
+width: 100%; height: 100%;
+object-fit: cover;
+display: block;
+}
 
-        .video-item video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+/* ── 渐变遮罩 ── */
+.mask-top {
+position: fixed; top: 0; left: 0; right: 0;
+height: 180px;
+background: linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, transparent 100%);
+z-index: 2; pointer-events: none;
+}
+.mask-bottom {
+position: fixed; bottom: 0; left: 0; right: 0;
+height: 280px;
+background: linear-gradient(to top, rgba(0,0,0,0.52) 0%, transparent 100%);
+z-index: 2; pointer-events: none;
+}
 
-        /* ── 阴影遮罩 (保证文字清晰) ── */
-        .overlay-top {
-            position: absolute; top: 0; width: 100%; height: 180px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%);
-            z-index: 2; pointer-events: none;
-        }
+/* ══════════════════════════════
+顶部导航  —— 精确对照截图
+══════════════════════════════ */
+.top-nav {
+position: fixed;
+top: env(safe-area-inset-top, 44px);
+left: 0; right: 0;
+z-index: 10;
+display: flex;
+align-items: center;
+padding: 0 12px;
+height: 44px;
+}
 
-        .overlay-bottom {
-            position: absolute; bottom: 0; width: 100%; height: 280px;
-            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
-            z-index: 2; pointer-events: none;
-        }
+/* 左侧汉堡 */
+.nav-menu {
+width: 36px;
+display: flex; flex-direction: column; gap: 5px;
+flex-shrink: 0;
+cursor: pointer;
+}
+.nav-menu span {
+display: block; height: 1.5px; background: #fff;
+border-radius: 1px;
+}
+.nav-menu span:nth-child(2) { width: 80%; }
 
-        /* ── 顶部导航 ── */
-        .top-nav {
-            position: fixed; top: env(safe-area-inset-top, 24px);
-            left: 0; right: 0; z-index: 100;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 18px;
-        }
+/* 中间标签滚动区 */
+.nav-tabs {
+flex: 1;
+display: flex;
+align-items: center;
+gap: 0;
+overflow-x: auto;
+scrollbar-width: none;
+padding: 0 4px;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
 
-        .top-left, .top-right { width: 44px; display: flex; align-items: center; }
-        .top-right { justify-content: flex-end; }
+.nav-tab {
+flex-shrink: 0;
+font-size: 15px;
+color: rgba(255,255,255,0.65);
+font-weight: 500;
+padding: 0 10px;
+cursor: pointer;
+white-space: nowrap;
+position: relative;
+line-height: 44px;
+letter-spacing: 0.2px;
+}
 
-        .nav-tabs {
-            display: flex; gap: 18px; font-size: 17px; color: rgba(255,255,255,0.7);
-            font-weight: 700; overflow-x: auto; white-space: nowrap;
-            scrollbar-width: none;
-        }
-        .nav-tabs::-webkit-scrollbar { display: none; }
-        
-        .nav-tab.active { color: #fff; position: relative; }
-        .nav-tab.active::after {
-            content: ''; position: absolute; bottom: -6px; left: 15%; width: 70%;
-            height: 2px; background: #fff;
-        }
+.nav-tab.active {
+color: #fff;
+font-size: 17px;
+font-weight: 700;
+}
 
-        /* ── 右侧操作栏 ── */
-        .side-bar {
-            position: absolute; right: 10px; bottom: 120px;
-            z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 20px;
-        }
+.nav-tab.active::after {
+content: ‘’;
+position: absolute;
+bottom: 3px;
+left: 50%;
+transform: translateX(-50%);
+width: 16px; height: 2.5px;
+background: #fff;
+border-radius: 2px;
+}
 
-        .side-icon-group { display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
-        /* 修复数字模糊搬运逻辑：数字模糊处理，点击抖动模拟变化，不准确计算隐私 */
-        .side-icon-group span { 
-            font-size: 12px; font-weight: 500; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.6); 
-            filter: blur(2px); /* 脱敏模糊处理 */
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+/* 右侧搜索 */
+.nav-search {
+width: 36px;
+display: flex; align-items: center; justify-content: flex-end;
+flex-shrink: 0;
+cursor: pointer;
+}
 
-        .side-icon-group.active span { transform: scale(1.1); filter: blur(1.5px); }
+/* ══════════════════════════════
+右侧操作栏  —— 精确对照截图
+══════════════════════════════ */
+.side-bar {
+position: fixed;
+right: 10px;
+bottom: calc(env(safe-area-inset-bottom, 0px) + 68px);
+z-index: 10;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 0;
+}
 
-        .avatar-box {
-            position: relative; width: 54px; height: 54px; margin-bottom: 12px;
-        }
-        .avatar-box img { 
-            width: 100%; height: 100%; border-radius: 50%; border: 1.5px solid #fff; 
-        }
-        .avatar-box .plus {
-            position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
-            width: 22px; height: 22px; background: var(--dy-red); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 300;
-        }
+/* 头像 */
+.avatar-wrap {
+width: 52px; height: 52px;
+position: relative;
+margin-bottom: 22px;
+}
 
-        /* ── 底部信息 ── */
-        .bottom-info {
-            position: absolute; left: 16px; bottom: 110px; right: 90px; z-index: 100;
-        }
-        /* 修复文字大小：用户名模糊块对应占位文本大小增加到 18px */
-        .user-name { 
-            font-size: 18px; font-weight: 700; margin-bottom: 10px; 
-            filter: blur(2px); /* 脱敏模糊处理 */
-        }
-        /* 修复文字大小：描述模糊块大小增加到 15px */
-        .video-desc { 
-            font-size: 15px; line-height: 1.5; margin-bottom: 14px; 
-            filter: blur(2px); /* 脱敏模糊处理 */
-        }
-        /* 修复文字大小：音乐模糊块大小增加到 14px */
-        .music-box { display: flex; align-items: center; gap: 8px; font-size: 14px; width: 90%; overflow: hidden; filter: blur(1.5px); /* 脱敏模糊处理 */ }
-        
-        @keyframes scrollMusic {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
-        }
-        .music-name { white-space: nowrap; animation: scrollMusic 12s linear infinite; }
+.avatar-img {
+width: 52px; height: 52px;
+border-radius: 50%;
+border: 1.5px solid #fff;
+object-fit: cover;
+background: #333;
+display: flex; align-items: center; justify-content: center;
+overflow: hidden;
+}
 
-        /* ── 底部导航栏 ── */
-        .tab-bar {
-            position: fixed; bottom: 0; width: 100%;
-            height: calc(60px + env(safe-area-inset-bottom));
-            background: #000; z-index: 100;
-            display: flex; align-items: center;
-            padding-bottom: calc( env(safe-area-inset-bottom) + 5px );
-            border-top: 0.5px solid rgba(255,255,255,0.06);
-            padding-left: 5px; padding-right: 5px;
-        }
+.avatar-img svg { width: 100%; height: 100%; }
 
-        .tab-item { 
-            flex: 1; display: flex; flex-direction: column; align-items: center; color: rgba(255,255,255,0.6); 
-            filter: blur(1.5px); /* 底部文字模糊处理 */
-        }
-        .tab-item.active { color: #fff; filter: blur(0); /* 选中态清晰 */ }
-        .tab-item span { font-size: 10px; margin-top: 5px; font-weight: 700; }
-        
-        /* 中间发布按钮：立体感还原 */
-        .publish-btn-wrap {
-            position: relative; width: 48px; height: 32px; display: flex; align-items: center; justify-content: center;
-        }
-        .publish-btn {
-            width: 44px; height: 30px; background: #fff; border-radius: 9px;
-            position: absolute; color: #000; font-size: 22px; font-weight: bold;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .publish-btn::before {
-            content: ''; position: absolute; left: -3px; top: -1px; width: calc(100% + 1px); height: calc(100% + 1px);
-            background: var(--dy-cyan); border-radius: 9px; z-index: -1;
-        }
-        .publish-btn::after {
-            content: ''; position: absolute; right: -3px; top: -1px; width: calc(100% + 1px); height: calc(100% + 1px);
-            background: var(--dy-red); border-radius: 9px; z-index: -2;
-        }
+.avatar-plus {
+position: absolute;
+bottom: -9px; left: 50%;
+transform: translateX(-50%);
+width: 22px; height: 22px;
+background: var(–red);
+border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+font-size: 16px; font-weight: 400; color: #fff;
+line-height: 1;
+box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
 
-        /* 唱片旋转动画 */
-        .record-disc {
-            width: 50px; height: 50px; border-radius: 50%;
-            background: radial-gradient(circle, #333 15%, #111 80%);
-            border: 10px solid #222;
-            animation: rotate 6s linear infinite;
-            position: relative; flex-shrink: 0;
-        }
-        /* 唱片中心孔清晰 */
-        .record-disc::after {
-            content: ''; width: 14px; height: 14px; border-radius: 50%;
-            background: #111; border: 3px solid #444; position: absolute;
-            left: 50%; top: 50%; transform: translate(-50%, -50%);
-        }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+/* 各操作按钮 */
+.side-btn {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 3px;
+margin-bottom: 18px;
+cursor: pointer;
+}
 
-        /* 点赞动画心形 */
-        .tap-heart {
-            position: absolute; width: 88px; height: 88px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23fe2c55"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') no-repeat;
-            z-index: 999; pointer-events: none; transform: translate(-50%, -50%) scale(0);
-            animation: heartAnim 0.8s ease-out forwards;
-        }
-        @keyframes heartAnim {
-            0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
-            25% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
-            100% { transform: translate(-50%, -150%) scale(1.1); opacity: 0; }
-        }
-        
-        /* 图标点击反馈 */
-        @keyframes iconJump {
-            0% { transform: scale(1); }
-            30% { transform: scale(1.3); }
-            100% { transform: scale(1); }
-        }
-        .side-icon-group svg { transition: fill 0.2s, transform 0.2s; }
-        .side-icon-group.active svg { animation: iconJump 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    </style>
+.side-btn .icon-wrap {
+width: 48px; height: 48px;
+display: flex; align-items: center; justify-content: center;
+}
+
+.side-btn .icon-wrap svg {
+filter: drop-shadow(0 1px 4px rgba(0,0,0,0.4));
+}
+
+.side-btn .label {
+font-size: 12px;
+color: #fff;
+font-weight: 500;
+text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+letter-spacing: 0.3px;
+text-align: center;
+}
+
+/* 点赞心形（白色未点赞态，对照截图） */
+#heartIcon { transition: fill 0.15s; }
+
+/* 底部旋转唱片（截图最下方） */
+.disc-wrap {
+width: 48px; height: 48px;
+margin-top: 2px;
+}
+
+.disc {
+width: 48px; height: 48px;
+border-radius: 50%;
+background: radial-gradient(circle at 50% 50%, #555 0%, #222 45%, #111 100%);
+border: 6px solid #333;
+animation: discSpin 5s linear infinite;
+position: relative;
+overflow: hidden;
+}
+
+.disc::after {
+content: ‘’;
+position: absolute;
+top: 50%; left: 50%;
+transform: translate(-50%, -50%);
+width: 10px; height: 10px;
+border-radius: 50%;
+background: #1a1a1a;
+border: 2px solid #555;
+}
+
+@keyframes discSpin {
+from { transform: rotate(0deg); }
+to   { transform: rotate(360deg); }
+}
+
+/* ══════════════════════════════
+底部视频信息  —— 左下角
+══════════════════════════════ */
+.video-info {
+position: fixed;
+left: 14px;
+bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
+right: 76px;
+z-index: 10;
+}
+
+.vi-username {
+font-size: 17px;
+font-weight: 700;
+color: #fff;
+margin-bottom: 6px;
+text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.vi-desc {
+font-size: 14px;
+color: rgba(255,255,255,0.92);
+line-height: 1.45;
+margin-bottom: 10px;
+text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+display: flex;
+align-items: center;
+gap: 4px;
+flex-wrap: wrap;
+}
+
+.vi-desc .expand {
+color: rgba(255,255,255,0.6);
+font-size: 13px;
+}
+
+.vi-music {
+display: flex;
+align-items: center;
+gap: 6px;
+overflow: hidden;
+}
+
+.vi-music-text {
+font-size: 13px;
+color: rgba(255,255,255,0.88);
+white-space: nowrap;
+overflow: hidden;
+animation: musicScroll 10s linear infinite;
+display: inline-block;
+}
+
+@keyframes musicScroll {
+0%   { transform: translateX(0); }
+40%  { transform: translateX(-45%); }
+50%  { transform: translateX(-45%); }
+90%  { transform: translateX(0); }
+100% { transform: translateX(0); }
+}
+
+/* ══════════════════════════════
+底部导航栏  —— 精确对照截图
+══════════════════════════════ */
+.tab-bar {
+position: fixed;
+bottom: 0; left: 0; right: 0;
+height: calc(55px + env(safe-area-inset-bottom, 0px));
+padding-bottom: env(safe-area-inset-bottom, 0px);
+background: rgba(0,0,0,0.92);
+border-top: 0.5px solid rgba(255,255,255,0.1);
+z-index: 20;
+display: flex;
+align-items: center;
+}
+
+.tab-item {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 3px;
+cursor: pointer;
+height: 55px;
+}
+
+.tab-item .tab-label {
+font-size: 10px;
+color: rgba(255,255,255,0.45);
+font-weight: 600;
+letter-spacing: 0.3px;
+}
+
+.tab-item.active .tab-label {
+color: #fff;
+font-size: 11px;
+}
+
+/* 发布按钮 —— 双色描边白色圆角矩形 */
+.tab-publish {
+flex: 1;
+display: flex; align-items: center; justify-content: center;
+height: 55px; cursor: pointer;
+}
+
+.pub-btn {
+width: 46px; height: 30px;
+position: relative;
+display: flex; align-items: center; justify-content: center;
+}
+
+.pub-btn::before {
+content: ‘’;
+position: absolute;
+left: -4px; top: 0;
+width: 46px; height: 30px;
+background: var(–cyan);
+border-radius: 8px;
+z-index: 0;
+}
+
+.pub-btn::after {
+content: ‘’;
+position: absolute;
+right: -4px; top: 0;
+width: 46px; height: 30px;
+background: var(–red);
+border-radius: 8px;
+z-index: 0;
+}
+
+.pub-inner {
+width: 42px; height: 30px;
+background: #fff;
+border-radius: 7px;
+display: flex; align-items: center; justify-content: center;
+position: relative; z-index: 1;
+color: #000;
+font-size: 22px;
+font-weight: 300;
+line-height: 1;
+}
+
+/* ══════════════════════════════
+双击飘心
+══════════════════════════════ */
+.tap-heart {
+position: fixed;
+width: 90px; height: 90px;
+pointer-events: none;
+z-index: 999;
+transform: translate(-50%, -50%) scale(0);
+animation: heartFloat 0.85s ease-out forwards;
+}
+
+@keyframes heartFloat {
+0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+20%  { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+60%  { transform: translate(-50%, -100%) scale(1.1); opacity: 0.8; }
+100% { transform: translate(-50%, -180%) scale(0.8); opacity: 0; }
+}
+
+/* ══════════════════════════════
+点赞数字跳动
+══════════════════════════════ */
+.count-bump {
+animation: countBump 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes countBump {
+0%   { transform: scale(1); }
+50%  { transform: scale(1.4); }
+100% { transform: scale(1); }
+}
+
+/* Toast */
+#toast {
+position: fixed;
+bottom: 120px; left: 50%;
+transform: translateX(-50%);
+background: rgba(0,0,0,0.72);
+color: #fff; padding: 9px 22px;
+border-radius: 22px; font-size: 13px;
+z-index: 999; opacity: 0;
+transition: opacity 0.25s;
+pointer-events: none;
+white-space: nowrap;
+}
+</style>
+
 </head>
 <body>
 
-<div id="app">
-    <div class="overlay-top"></div>
-    <div class="overlay-bottom"></div>
+<!-- 视频 -->
 
-    <div class="top-nav">
-        <div class="top-left">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        </div>
-        <div class="nav-tabs">
-            <div class="nav-tab">成都</div>
-            <div class="nav-tab">精选</div>
-            <div class="nav-tab">关注</div>
-            <div class="nav-tab active">推荐</div>
-        </div>
-        <div class="top-right">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        </div>
-    </div>
-
-    <div class="video-container" id="videoLayer">
-        <div class="video-item">
-            <video id="mainVideo" loop playsinline src="https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeie53svjmqhznjlosvlkvtu7cckzrgwexo3h2ljvartpuhzsr3kdki"></video>
-        </div>
-    </div>
-
-    <div class="side-bar">
-        <div class="avatar-box">
-            <img src="https://dummyimage.com/100/fe2c55/fff&text=Me" alt="头像">
-            <div class="plus">+</div>
-        </div>
-        <div class="side-icon-group" id="likeBtn">
-            <svg width="38" height="38" viewBox="0 0 24 24" fill="white"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            <span>37.1万</span>
-        </div>
-        <div class="side-icon-group" id="commentBtn">
-            <svg width="35" height="35" viewBox="0 0 24 24" fill="white"><path d="M22 13C22 17.9706 17.5228 22 12 22C10.7027 22 9.4587 21.7828 8.31845 21.3813L3.16109 23.0118C2.6074 23.187 2.0306 22.8427 1.93679 22.288L1.75881 21.2336C1.49392 19.6644 1.70881 18.1189 2.37012 16.7904C1.13781 15.6883 0.333333 14.4173 0.333333 13C0.333333 8.02944 4.8105 4 10.3333 4H12C17.5228 4 22 8.02944 22 13Z"/></svg>
-            <span>4982</span>
-        </div>
-        <div class="side-icon-group" id="collectBtn">
-            <svg width="35" height="35" viewBox="0 0 24 24" fill="white" id="starSvg"><path d="M12 2.5L14.77 8.11L21 9.02L16.5 13.41L17.56 19.62L12 16.7L6.44 19.62L7.5 13.41L3 9.02L9.23 8.11L12 2.5Z"/></svg>
-            <span>1.7万</span>
-        </div>
-        <div class="side-icon-group" id="shareBtn">
-            <svg width="35" height="35" viewBox="0 0 24 24" fill="white"><path d="M16 1L23 8L16 15V10C10 10 7.5 13.5 6 18C8.5 14.5 11 13 16 13V1L16 1ZM10 18V21H2V6H10V9M10 18Z"/></svg>
-            <span>3.2万</span>
-        </div>
-        <div class="record-disc"></div>
-    </div>
-
-    <div class="bottom-info">
-        <div class="user-name">占位用户名</div> <div class="video-desc">这是脱敏后的视频描述占位符，字体15px。🎉 #去中心化存储占位 #Web3占位 #IPFS占位</div> <div class="music-box">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm12-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
-            <div class="music-name">原声 - 脱敏音乐名演示占位符 · 原声 - 脱敏音乐名演示占位符</div> </div>
-    </div>
-
-    <div class="tab-bar">
-        <div class="tab-item active">
-            <span>首页占位</span> </div>
-        <div class="tab-item">
-            <span>商城占位</span> </div>
-        <div class="tab-item">
-            <div class="publish-btn-wrap">
-                <div class="publish-btn">+</div>
-            </div>
-        </div>
-        <div class="tab-item">
-            <span>消息占位</span> </div>
-        <div class="tab-item">
-            <span>我占位</span> </div>
-    </div>
+<div id="videoLayer">
+  <video id="mainVideo"
+    src="https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeie53svjmqhznjlosvlkvtu7cckzrgwexo3h2ljvartpuhzsr3kdki"
+    loop playsinline webkit-playsinline preload="auto">
+  </video>
 </div>
 
+<!-- 遮罩 -->
+
+<div class="mask-top"></div>
+<div class="mask-bottom"></div>
+
+<!-- 顶部导航 -->
+
+<nav class="top-nav">
+  <div class="nav-menu">
+    <span></span><span></span><span></span>
+  </div>
+  <div class="nav-tabs" id="navTabs">
+    <div class="nav-tab" onclick="switchTab(this)">成都</div>
+    <div class="nav-tab" onclick="switchTab(this)">精选</div>
+    <div class="nav-tab" onclick="switchTab(this)">团购</div>
+    <div class="nav-tab" onclick="switchTab(this)">直播</div>
+    <div class="nav-tab" onclick="switchTab(this)">关注</div>
+    <div class="nav-tab" onclick="switchTab(this)">朋友</div>
+    <div class="nav-tab active" onclick="switchTab(this)">推荐</div>
+  </div>
+  <div class="nav-search">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+      <circle cx="11" cy="11" r="7.5"/>
+      <line x1="20" y1="20" x2="16.2" y2="16.2"/>
+    </svg>
+  </div>
+</nav>
+
+<!-- 右侧操作栏 -->
+
+<div class="side-bar">
+
+  <!-- 头像 -->
+
+  <div class="avatar-wrap">
+    <div class="avatar-img">
+      <!-- 动漫风头像 SVG（对照截图黑发女生样式） -->
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="100" fill="#1a1a2e"/>
+        <ellipse cx="50" cy="62" rx="28" ry="22" fill="#f5c5a3"/>
+        <ellipse cx="50" cy="48" rx="22" ry="24" fill="#f5c5a3"/>
+        <!-- 黑发 -->
+        <ellipse cx="50" cy="36" rx="24" ry="20" fill="#1a1a1a"/>
+        <rect x="26" y="30" width="10" height="36" rx="4" fill="#1a1a1a"/>
+        <rect x="64" y="30" width="10" height="36" rx="4" fill="#1a1a1a"/>
+        <ellipse cx="50" cy="26" rx="22" ry="14" fill="#1a1a1a"/>
+        <!-- 眼睛 -->
+        <ellipse cx="40" cy="50" rx="5" ry="6" fill="#1a1a1a"/>
+        <ellipse cx="60" cy="50" rx="5" ry="6" fill="#1a1a1a"/>
+        <circle cx="41.5" cy="48.5" r="1.5" fill="#fff"/>
+        <circle cx="61.5" cy="48.5" r="1.5" fill="#fff"/>
+        <!-- 嘴 -->
+        <path d="M44 60 Q50 65 56 60" stroke="#d4896a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- 衣领 -->
+        <rect x="30" y="82" width="40" height="20" rx="4" fill="#e8e8f0"/>
+      </svg>
+    </div>
+    <div class="avatar-plus">+</div>
+  </div>
+
+  <!-- 点赞 -->
+
+  <div class="side-btn" id="likeBtn" onclick="toggleLike()">
+    <div class="icon-wrap">
+      <svg id="heartIcon" width="38" height="38" viewBox="0 0 24 24" fill="rgba(255,255,255,0.95)">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+    </div>
+    <span class="label" id="likeLabel">37.1万</span>
+  </div>
+
+  <!-- 评论（气泡三点样式，对照截图） -->
+
+  <div class="side-btn" onclick="showToast('评论功能开发中~')">
+    <div class="icon-wrap">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="rgba(255,255,255,0.95)">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        <circle cx="8.5" cy="11" r="1" fill="#000"/>
+        <circle cx="12" cy="11" r="1" fill="#000"/>
+        <circle cx="15.5" cy="11" r="1" fill="#000"/>
+      </svg>
+    </div>
+    <span class="label">4982</span>
+  </div>
+
+  <!-- 收藏（五角星，对照截图） -->
+
+  <div class="side-btn" id="starBtn" onclick="toggleStar()">
+    <div class="icon-wrap">
+      <svg id="starIcon" width="36" height="36" viewBox="0 0 24 24" fill="rgba(255,255,255,0.95)">
+        <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+      </svg>
+    </div>
+    <span class="label" id="starLabel">1.7万</span>
+  </div>
+
+  <!-- 分享（箭头，对照截图） -->
+
+  <div class="side-btn" onclick="showToast('分享功能开发中~')">
+    <div class="icon-wrap">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 10l5 5-5 5"/>
+        <path d="M4 4v7a4 4 0 0 0 4 4h12"/>
+      </svg>
+    </div>
+    <span class="label">3.2万</span>
+  </div>
+
+  <!-- 旋转唱片 -->
+
+  <div class="disc-wrap">
+    <div class="disc"></div>
+  </div>
+
+</div>
+
+<!-- 底部视频信息 -->
+
+<div class="video-info">
+  <div class="vi-username">@我的Pinata视频</div>
+  <div class="vi-desc">
+    这是存在IPFS上的视频 🎉 #去中心化存储 #Web3
+    <span class="expand">不收徒#魔术 ∨</span>
+  </div>
+  <div class="vi-music">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.85)">
+      <path d="M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm12-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+    </svg>
+    <span class="vi-music-text">原声 - IPFS去中心化存储演示 · 原声 - IPFS去中心化存储演示</span>
+  </div>
+</div>
+
+<!-- 底部导航 -->
+
+<div class="tab-bar">
+  <div class="tab-item active">
+    <span class="tab-label">首页</span>
+  </div>
+  <div class="tab-item" onclick="showToast('敬请期待~')">
+    <span class="tab-label">商城</span>
+  </div>
+  <div class="tab-publish">
+    <div class="pub-btn" onclick="showToast('发布功能开发中~')">
+      <div class="pub-inner">+</div>
+    </div>
+  </div>
+  <div class="tab-item" onclick="showToast('敬请期待~')">
+    <span class="tab-label">消息</span>
+  </div>
+  <div class="tab-item" onclick="showToast('敬请期待~')">
+    <span class="tab-label">我</span>
+  </div>
+</div>
+
+<!-- Toast -->
+
+<div id="toast"></div>
+
 <script>
-    const video = document.getElementById('mainVideo');
-    const videoLayer = document.getElementById('videoLayer');
+  const video = document.getElementById('mainVideo');
 
-    // 自动播放逻辑：网页端需要交互才能自动播放，默认给一次点击模拟
-    document.addEventListener('click', () => {
-        video.play();
-    }, { once: true });
+  // 自动播放
+  const tryPlay = () => video.play().catch(() => {});
+  video.addEventListener('canplay', tryPlay);
+  document.addEventListener('touchstart', tryPlay, { once: true });
+  document.addEventListener('click', tryPlay, { once: true });
 
-    // Toast 功能
-    function showToast(msg) {
-        const t = document.createElement('div');
-        t.style.cssText = 'position:fixed; bottom:130px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:#fff; padding:10px 22px; border-radius:22px; font-size:14px; z-index:9999; animation: fadeOut 0.4s 1.5s forwards; white-space:nowrap;';
-        t.textContent = msg;
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 2000);
+  // 单击 暂停/播放
+  document.getElementById('videoLayer').addEventListener('click', function(e) {
+    // 防止操作按钮触发
+    if (e.target.closest('.side-bar') || e.target.closest('.top-nav') || e.target.closest('.tab-bar') || e.target.closest('.video-info')) return;
+    video.paused ? video.play() : video.pause();
+  });
+
+  // 双击点赞
+  let lastTap = 0;
+  document.getElementById('videoLayer').addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTap < 280) {
+      spawnHeart(e.changedTouches[0].pageX, e.changedTouches[0].pageY);
+      if (!liked) toggleLike();
     }
-    document.getElementById('commentBtn').addEventListener('click', () => showToast('评论功能占位~'));
-    document.getElementById('shareBtn').addEventListener('click', () => showToast('分享功能占位~'));
+    lastTap = now;
+  });
 
+  // 点赞
+  let liked = false;
+  let likeNum = 371000;
 
-    // 点赞功能完善：星星变红，飘心，数字模糊块稍微抖动
-    let liked = false;
-    const likeBtn = document.getElementById('likeBtn');
-    likeBtn.addEventListener('click', function(e) {
-        liked = !liked;
-        const svg = this.querySelector('svg');
-        const span = this.querySelector('span');
-        this.classList.add('active'); // 触发抖动
-        if (liked) {
-            svg.setAttribute('fill', '#fe2c55');
-            spawnHeart(e.clientX, e.clientY);
-        } else {
-            svg.setAttribute('fill', 'white');
-        }
-        setTimeout(() => this.classList.remove('active'), 400); // 移除抖动
-    });
-
-    // 双击点赞功能还原：飘心，不改变星星状态
-    let lastTap = 0;
-    videoLayer.addEventListener('touchend', function(e) {
-        const curTime = new Date().getTime();
-        const tapLen = curTime - lastTap;
-        if (tapLen < 300 && tapLen > 0) {
-            createHeart(e.changedTouches[0].pageX, e.changedTouches[0].pageY);
-            // 这里不改变Liked状态，只飘心，匹配原生交互
-        }
-        lastTap = curTime;
-    });
-
-    // spawnHeart 用于点击按钮飘心
-    function spawnHeart(x, y) {
-        const heart = document.createElement('div');
-        heart.className = 'tap-heart';
-        heart.style.left = x + 'px';
-        heart.style.top = y + 'px';
-        document.body.appendChild(heart);
-        setTimeout(() => heart.remove(), 800);
+  function toggleLike() {
+    liked = !liked;
+    const icon = document.getElementById('heartIcon');
+    const label = document.getElementById('likeLabel');
+    if (liked) {
+      likeNum++;
+      icon.setAttribute('fill', '#fe2c55');
+      icon.style.animation = 'none';
+      requestAnimationFrame(() => {
+        icon.style.animation = '';
+        icon.style.transform = 'scale(1.35)';
+        setTimeout(() => icon.style.transform = '', 200);
+      });
+    } else {
+      likeNum--;
+      icon.setAttribute('fill', 'rgba(255,255,255,0.95)');
     }
+    label.textContent = fmtNum(likeNum);
+    label.classList.remove('count-bump');
+    void label.offsetWidth;
+    label.classList.add('count-bump');
+  }
 
-    // createHeart 用于双击屏幕飘心
-    function createHeart(x, y) {
-        spawnHeart(x, y);
+  // 收藏
+  let starred = false;
+  let starNum = 17000;
+
+  function toggleStar() {
+    starred = !starred;
+    const icon = document.getElementById('starIcon');
+    const label = document.getElementById('starLabel');
+    if (starred) {
+      starNum++;
+      icon.setAttribute('fill', '#ffd700');
+    } else {
+      starNum--;
+      icon.setAttribute('fill', 'rgba(255,255,255,0.95)');
     }
+    label.textContent = fmtNum(starNum);
+  }
 
-    // 收藏功能完善：默认黄色实心星，点击星星变实心黄，数字模糊块抖动
-    let collected = false;
-    const collectBtn = document.getElementById('collectBtn');
-    collectBtn.addEventListener('click', function() {
-        collected = !collected;
-        const svg = document.getElementById('starSvg');
-        const span = this.querySelector('span');
-        this.classList.add('active'); // 触发抖动
-        if (collected) {
-            svg.setAttribute('fill', '#ffd700'); // 黄色实心星，匹配截图2
-        } else {
-            svg.setAttribute('fill', 'white'); // 灰色实心星，模拟原生点击变黄前状态。用户要实心，我也给实心，默认给灰色模拟“未点击”原生状态（或者默认灰色点击变黄）
-            // 考虑点赞是红色，我默认给灰色（空心？不，用户要实心，我也想给实心，原生点击是实心变实心黄。我默认灰色实心点击变实心黄）
-            // 好的。默认灰色实心，点击变黄实心。
-        }
-        setTimeout(() => this.classList.remove('active'), 400); // 移除抖动
-    });
+  function fmtNum(n) {
+    if (n >= 10000) return (n / 10000).toFixed(1) + '万';
+    return n.toLocaleString();
+  }
 
-    // 音乐名脱敏模拟播放状态滚动
-    function startMusicScroll() {
-        const musicScroll = document.querySelector('.music-scroll');
-        const musicName = document.querySelector('.music-name');
-        if (musicScroll.offsetWidth < musicName.offsetWidth) {
-             musicName.style.animation = 'scrollMusic 12s linear infinite';
-        } else {
-             musicName.style.animation = 'none';
-        }
-    }
-    // startMusicScroll(); // 初始化调用。已用 CSS 实现。
+  // 飘心
+  function spawnHeart(x, y) {
+    const el = document.createElement('div');
+    el.className = 'tap-heart';
+    el.style.cssText = `left:${x}px;top:${y}px`;
+    el.innerHTML = `<svg viewBox="0 0 24 24" fill="#fe2c55" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 860);
+  }
+
+  // 导航切换
+  function switchTab(el) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+
+  // Toast
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.opacity = '1';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.style.opacity = '0', 2000);
+  }
 </script>
 
 </body>
