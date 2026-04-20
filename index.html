@@ -127,12 +127,12 @@ cursor: pointer;
 }
 
 /* ══════════════════════════════
-右侧操作栏  —— 精确对照截图
+右侧操作栏  —— 真实抖音白色图标风格
 ══════════════════════════════ */
 .side-bar {
 position: fixed;
-right: 10px;
-bottom: calc(env(safe-area-inset-bottom, 0px) + 68px);
+right: 8px;
+bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
 z-index: 10;
 display: flex;
 flex-direction: column;
@@ -144,7 +144,7 @@ gap: 0;
 .avatar-wrap {
 width: 52px; height: 52px;
 position: relative;
-margin-bottom: 22px;
+margin-bottom: 28px;
 }
 
 .avatar-img {
@@ -172,51 +172,53 @@ line-height: 1;
 box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 
-/* 各操作按钮 */
+/* 各操作按钮 ── 白色图标直接悬浮，无背景圆 */
 .side-btn {
 display: flex;
 flex-direction: column;
 align-items: center;
-gap: 3px;
-margin-bottom: 18px;
+gap: 5px;
+margin-bottom: 22px;
 cursor: pointer;
+-webkit-tap-highlight-color: transparent;
 }
 
 .side-btn .icon-wrap {
-width: 48px; height: 48px;
+width: 50px; height: 50px;
 display: flex; align-items: center; justify-content: center;
 }
 
+/* 白色图标 + 柔和阴影（真实抖音效果） */
 .side-btn .icon-wrap svg {
-filter: drop-shadow(0 1px 4px rgba(0,0,0,0.4));
+filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35));
 }
 
 .side-btn .label {
-font-size: 12px;
+font-size: 13px;
 color: #fff;
-font-weight: 500;
-text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-letter-spacing: 0.3px;
+font-weight: 600;
+text-shadow: 0 1px 4px rgba(0,0,0,0.55);
+letter-spacing: 0.5px;
 text-align: center;
 }
 
-/* 点赞心形（白色未点赞态，对照截图） */
+/* 点赞心形过渡 */
 #heartIcon { transition: fill 0.15s; }
 
-/* 底部旋转唱片（截图最下方） */
+/* 底部旋转唱片 */
 .disc-wrap {
-width: 48px; height: 48px;
-margin-top: 2px;
+width: 50px; height: 50px;
+margin-top: 4px;
 }
 
 .disc {
-width: 48px; height: 48px;
+width: 50px; height: 50px;
 border-radius: 50%;
-background: radial-gradient(circle at 50% 50%, #555 0%, #222 45%, #111 100%);
-border: 6px solid #333;
+background: radial-gradient(circle at 50% 50%, #666 0%, #2a2a2a 50%, #111 100%);
+border: 7px solid #2e2e2e;
 animation: discSpin 5s linear infinite;
 position: relative;
-overflow: hidden;
+box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
 .disc::after {
@@ -224,7 +226,7 @@ content: ‘’;
 position: absolute;
 top: 50%; left: 50%;
 transform: translate(-50%, -50%);
-width: 10px; height: 10px;
+width: 11px; height: 11px;
 border-radius: 50%;
 background: #1a1a1a;
 border: 2px solid #555;
@@ -496,52 +498,54 @@ white-space: nowrap;
     <div class="avatar-plus">+</div>
   </div>
 
-  <!-- 点赞 -->
+  <!-- 点赞：饱满心形，截图是纯白填充 -->
 
   <div class="side-btn" id="likeBtn" onclick="toggleLike()">
     <div class="icon-wrap">
-      <svg id="heartIcon" width="38" height="38" viewBox="0 0 24 24" fill="rgba(255,255,255,0.95)">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      <svg id="heartIcon" width="46" height="46" viewBox="0 0 100 100" fill="white">
+        <path d="M50 85 C50 85 10 58 10 32 C10 18 20 10 32 10 C40 10 47 15 50 21 C53 15 60 10 68 10 C80 10 90 18 90 32 C90 58 50 85 50 85 Z"/>
       </svg>
     </div>
-    <span class="label" id="likeLabel">37.1万</span>
+    <span class="label" id="likeLabel">3888</span>
   </div>
 
-  <!-- 评论（气泡三点样式，对照截图） -->
+  <!-- 评论：圆润气泡+三个圆点，截图样式 -->
 
   <div class="side-btn" onclick="showToast('评论功能开发中~')">
     <div class="icon-wrap">
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="rgba(255,255,255,0.95)">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        <circle cx="8.5" cy="11" r="1" fill="#000"/>
-        <circle cx="12" cy="11" r="1" fill="#000"/>
-        <circle cx="15.5" cy="11" r="1" fill="#000"/>
+      <svg width="46" height="46" viewBox="0 0 100 100">
+        <!-- 气泡主体 -->
+        <path d="M50 12 C28 12 12 26 12 44 C12 56 19 66 31 72 L26 88 L44 78 C46 78.5 48 79 50 79 C72 79 88 65 88 47 C88 29 72 12 50 12 Z" fill="white"/>
+        <!-- 三个点 -->
+        <circle cx="34" cy="46" r="5.5" fill="#c0c0c0"/>
+        <circle cx="50" cy="46" r="5.5" fill="#c0c0c0"/>
+        <circle cx="66" cy="46" r="5.5" fill="#c0c0c0"/>
       </svg>
     </div>
-    <span class="label">4982</span>
+    <span class="label">199</span>
   </div>
 
-  <!-- 收藏（五角星，对照截图） -->
+  <!-- 收藏：5角星，截图是实心白色偏暖 -->
 
   <div class="side-btn" id="starBtn" onclick="toggleStar()">
     <div class="icon-wrap">
-      <svg id="starIcon" width="36" height="36" viewBox="0 0 24 24" fill="rgba(255,255,255,0.95)">
-        <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+      <svg id="starIcon" width="46" height="46" viewBox="0 0 100 100" fill="white">
+        <polygon points="50,8 63,36 94,39 72,60 78,91 50,76 22,91 28,60 6,39 37,36"/>
       </svg>
     </div>
-    <span class="label" id="starLabel">1.7万</span>
+    <span class="label" id="starLabel">534</span>
   </div>
 
-  <!-- 分享（箭头，对照截图） -->
+  <!-- 分享：弯曲箭头，截图右弯样式 -->
 
   <div class="side-btn" onclick="showToast('分享功能开发中~')">
     <div class="icon-wrap">
-      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M15 10l5 5-5 5"/>
-        <path d="M4 4v7a4 4 0 0 0 4 4h12"/>
+      <svg width="46" height="46" viewBox="0 0 100 100" fill="white">
+        <!-- 弧形箭头主体 -->
+        <path d="M20 75 C20 45 45 30 72 32 L62 18 L90 38 L62 55 L72 42 C50 40 32 52 32 75 Z"/>
       </svg>
     </div>
-    <span class="label">3.2万</span>
+    <span class="label">84</span>
   </div>
 
   <!-- 旋转唱片 -->
@@ -623,7 +627,7 @@ white-space: nowrap;
 
   // 点赞
   let liked = false;
-  let likeNum = 371000;
+  let likeNum = 3888;
 
   function toggleLike() {
     liked = !liked;
