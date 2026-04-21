@@ -1,118 +1,186 @@
+该参数
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>抖音 - 交互细节完整版</title>
+<title>抖音</title>
 <style>
   :root {
     --red: #fe2c55;
     --cyan: #25f4ee;
-    --yellow: #fac300; /* 新增收藏的黄色 */
+    --yellow: #fac300;
   }
 
-  * { 
-    margin: 0; padding: 0; box-sizing: border-box; 
-    -webkit-tap-highlight-color: transparent; 
-  }
+- { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { -webkit-text-size-adjust:100%; height:-webkit-fill-available; }
 
-  html { -webkit-text-size-adjust: 100%; }
+body {
+background:#000;
+-webkit-font-smoothing:antialiased;
+-moz-osx-font-smoothing:grayscale;
+font-family:-apple-system,“PingFang SC”,“Helvetica Neue”,sans-serif;
+overflow:hidden;
+height:100vh; height:-webkit-fill-available; height:100dvh;
+width:100vw; color:#fff; user-select:none;
+}
 
-  body {
-    background: #000;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
-    overflow: hidden;
-    height: 100vh; width: 100vw;
-    color: #fff;
-    user-select: none;
-  }
+/* ══ 滚动容器 ══ */
+#videoContainer {
+position:fixed; top:0; left:0;
+width:100vw; height:100vh; height:100dvh;
+overflow-y:scroll;
+scroll-snap-type:y mandatory;
+scrollbar-width:none;
+-webkit-overflow-scrolling:touch;
+z-index:1;
+}
+#videoContainer::-webkit-scrollbar { display:none; }
 
-  /* ── 核心滚动容器 ── */
-  #videoContainer {
-    position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-    overflow-y: scroll; scroll-snap-type: y mandatory;
-    scrollbar-width: none; -webkit-overflow-scrolling: touch; z-index: 1;
-  }
-  #videoContainer::-webkit-scrollbar { display: none; }
+.video-section {
+position:relative;
+width:100vw; height:100vh; height:100dvh;
+scroll-snap-align:start; overflow:hidden;
+background:#111;
+}
 
-  .video-section {
-    position: relative; width: 100vw; height: 100vh;
-    scroll-snap-align: start; overflow: hidden;
-  }
-  .main-video { 
-    width: 100%; height: 100%; object-fit: cover; display: block; 
-  }
+.main-video { width:100%; height:100%; object-fit:cover; display:block; }
 
-  /* ── 暂停时的播放图标 ── */
-  .play-btn {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 65px; height: 65px; background: rgba(0,0,0,0.3); border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 5;
-  }
-  .play-btn svg { width: 36px; height: 36px; margin-left: 4px; fill: rgba(255,255,255,0.9); }
-  .video-section.paused .play-btn { opacity: 1; }
+/* ══ 骨架屏：视频加载中时显示 ══ */
+.skeleton {
+position:absolute; inset:0;
+background:linear-gradient(135deg,#1a1a1a 0%,#2a2a2a 50%,#1a1a1a 100%);
+background-size:200% 200%;
+animation:shimmer 1.5s ease-in-out infinite;
+z-index:3; pointer-events:none;
+transition:opacity 0.3s;
+}
+.skeleton.hidden { opacity:0; }
+@keyframes shimmer {
+0%  { background-position:200% 0; }
+100%{ background-position:-200% 0; }
+}
 
-  /* ── 全局提示框 (Toast) ── */
-  .toast {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.75); color: #fff; font-size: 15px;
-    padding: 12px 24px; border-radius: 8px; z-index: 9999;
-    opacity: 0; pointer-events: none; transition: opacity 0.3s;
-  }
-  .toast.show { opacity: 1; }
+/* ══ 暂停图标 ══ */
+.play-btn {
+position:absolute; top:50%; left:50%;
+transform:translate(-50%,-50%);
+width:68px; height:68px;
+background:rgba(0,0,0,0.35);
+border-radius:50%;
+display:flex; align-items:center; justify-content:center;
+opacity:0; pointer-events:none;
+transition:opacity 0.2s;
+z-index:5;
+backdrop-filter:blur(4px);
+}
+.play-btn svg { width:34px; height:34px; margin-left:5px; fill:rgba(255,255,255,0.92); }
+.video-section.paused .play-btn { opacity:1; }
 
-  /* ── UI遮罩与布局 ── */
-  .mask-top { position: fixed; top: 0; left: 0; right: 0; height: 160px; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 100%); z-index: 2; pointer-events: none; }
-  .mask-bottom { position: fixed; bottom: 0; left: 0; right: 0; height: 260px; background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%); z-index: 2; pointer-events: none; }
+/* ══ 渐变遮罩 ══ */
+.mask-top { position:fixed; top:0; left:0; right:0; height:180px; background:linear-gradient(to bottom,rgba(0,0,0,0.42) 0%,transparent 100%); z-index:2; pointer-events:none; }
+.mask-bottom { position:fixed; bottom:0; left:0; right:0; height:280px; background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.1) 60%,transparent 100%); z-index:2; pointer-events:none; }
 
-  /* ── 顶部导航 ── */
-  .top-nav { position: fixed; top: env(safe-area-inset-top, 44px); left: 0; right: 0; z-index: 10; display: flex; align-items: center; padding: 0 12px; height: 44px; }
-  .nav-menu { width: 36px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; cursor: pointer; }
-  .nav-menu span { display: block; height: 2px; background: #fff; border-radius: 1px; width: 22px; }
-  .nav-menu span:nth-child(2) { width: 16px; }
-  .nav-tabs { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0; overflow-x: auto; scrollbar-width: none; }
-  .nav-tabs::-webkit-scrollbar { display: none; }
-  .nav-tab { flex-shrink: 0; font-size: 16px; color: rgba(255,255,255,0.65); font-weight: 500; padding: 0 10px; cursor: pointer; white-space: nowrap; position: relative; line-height: 44px; }
-  .nav-tab.active { color: #fff; font-size: 17px; font-weight: 700; }
-  .nav-tab.active::after { content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 16px; height: 2.5px; background: #fff; border-radius: 2px; }
-  .nav-search { width: 36px; display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; cursor: pointer;}
+/* ══ 顶部导航 ══ */
+.top-nav { position:fixed; top:env(safe-area-inset-top,44px); left:0; right:0; z-index:100; display:flex; align-items:center; padding:0 12px; height:44px; }
+.nav-menu { width:36px; display:flex; flex-direction:column; gap:4px; flex-shrink:0; cursor:pointer; }
+.nav-menu span { display:block; height:2px; background:#fff; border-radius:1px; width:22px; }
+.nav-menu span:nth-child(2) { width:16px; }
+.nav-tabs { flex:1; display:flex; align-items:center; justify-content:center; gap:0; overflow-x:auto; scrollbar-width:none; }
+.nav-tabs::-webkit-scrollbar { display:none; }
+.nav-tab { flex-shrink:0; font-size:16px; color:rgba(255,255,255,0.65); font-weight:500; padding:0 10px; cursor:pointer; white-space:nowrap; position:relative; line-height:44px; }
+.nav-tab.active { color:#fff; font-size:17px; font-weight:700; }
+.nav-tab.active::after { content:’’; position:absolute; bottom:4px; left:50%; transform:translateX(-50%); width:16px; height:2.5px; background:#fff; border-radius:2px; }
+.nav-search { width:36px; display:flex; align-items:center; justify-content:flex-end; flex-shrink:0; cursor:pointer; }
 
-  /* ── 右侧操作栏 ── */
-  .side-bar { position: fixed; right: 10px; bottom: calc(env(safe-area-inset-bottom, 0px) + 90px); z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 0; }
-  .avatar-wrap { width: 52px; height: 52px; position: relative; margin-bottom: 22px; cursor: pointer; }
-  .avatar-img { width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid #fff; background: #333; overflow: hidden; }
-  .avatar-plus { position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; color: #fff; border: 1.5px solid #fff; transition: 0.2s; }
-  .side-btn { display: flex; flex-direction: column; align-items: center; margin-bottom: 18px; cursor: pointer; }
-  .side-btn .icon-wrap { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
-  .side-btn .label { font-size: 12px; color: #fff; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+/* ══ 右侧操作栏 ══ */
+.side-bar { position:fixed; right:10px; bottom:calc(env(safe-area-inset-bottom,0px) + 90px); z-index:100; display:flex; flex-direction:column; align-items:center; gap:0; }
 
-  /* ── 底部导航栏 ── */
-  .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; height: calc(55px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: #000; border-top: 0.5px solid rgba(255,255,255,0.1); z-index: 20; display: flex; align-items: center; }
-  .tab-item { flex: 1; display: flex; align-items: center; justify-content: center; height: 100%; cursor: pointer;}
-  .tab-item .tab-label { font-size: 17px; color: rgba(255,255,255,0.45); font-weight: 600; }
-  .tab-item.active .tab-label { color: #fff; }
-  .tab-publish { flex: 1; display: flex; align-items: center; justify-content: center; height: 55px; cursor: pointer; }
-  .pub-btn { width: 46px; height: 30px; position: relative; display: flex; align-items: center; justify-content: center; }
-  .pub-btn::before { content: ''; position: absolute; left: -4px; top: 0; width: 46px; height: 30px; background: var(--cyan); border-radius: 8px; z-index: 0; }
-  .pub-btn::after { content: ''; position: absolute; right: -4px; top: 0; width: 46px; height: 30px; background: var(--red); border-radius: 8px; z-index: 0; }
-  .pub-inner { width: 42px; height: 30px; background: #fff; border-radius: 7px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; color: #000; font-size: 22px; font-weight: 300; line-height: 1; }
+.avatar-wrap { width:52px; height:52px; position:relative; margin-bottom:22px; cursor:pointer; }
+.avatar-img { width:52px; height:52px; border-radius:50%; border:1.5px solid #fff; background:#333; overflow:hidden; }
+.avatar-img svg { width:100%; height:100%; }
+.avatar-plus { position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); width:18px; height:18px; background:#fe2c55; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:400; color:#fff; border:1.5px solid #fff; transition:opacity 0.25s, transform 0.25s; cursor:pointer; box-shadow:0 1px 4px rgba(254,44,85,0.5); line-height:1; }
+.avatar-plus.gone { opacity:0; pointer-events:none; transform:translateX(-50%) scale(0.5); }
 
-  /* ── 视频信息 ── */
-  .video-info { position: fixed; left: 14px; bottom: calc(env(safe-area-inset-bottom, 10px) + 60px); right: 80px; z-index: 10; pointer-events: none;}
-  .vi-username { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
-  .vi-desc { font-size: 14px; color: rgba(255,255,255,0.92); line-height: 1.4; }
+.side-btn { display:flex; flex-direction:column; align-items:center; margin-bottom:18px; cursor:pointer; }
+.side-btn .icon-wrap { width:45px; height:45px; display:flex; align-items:center; justify-content:center; }
+.side-btn .icon-wrap svg { transition:transform 0.15s; filter:drop-shadow(0 2px 5px rgba(0,0,0,0.4)); }
+.side-btn .label { font-size:12px; color:#fff; font-weight:500; text-shadow:0 1px 3px rgba(0,0,0,0.5); margin-top:2px; }
 
+/* ══ 底部导航栏 ══ */
+.tab-bar { position:fixed; bottom:0; left:0; right:0; height:calc(55px + env(safe-area-inset-bottom,0px)); padding-bottom:env(safe-area-inset-bottom,0px); background:#000; border-top:0.5px solid rgba(255,255,255,0.1); z-index:200; display:flex; align-items:center; }
+.tab-item { flex:1; display:flex; align-items:center; justify-content:center; height:100%; cursor:pointer; }
+.tab-item .tab-label { font-size:16px; color:rgba(255,255,255,0.45); font-weight:600; letter-spacing:0.3px; }
+.tab-item.active .tab-label { color:#fff; font-size:16px; }
+.tab-publish { flex:1; display:flex; align-items:center; justify-content:center; height:55px; cursor:pointer; }
+
+/* 截图样式：白色圆角方框 + 白色+号，无双色阴影 */
+.pub-btn { width:36px; height:36px; display:flex; align-items:center; justify-content:center; }
+.pub-btn::before { display:none; }
+.pub-btn::after  { display:none; }
+.pub-inner { width:36px; height: 26px; background:transparent; border:2px solid rgba(255,255,255,0.9); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size: 24px; font-weight:300; line-height:1; }
+
+/* ══ 视频信息 ══ */
+.video-info { position:fixed; left:14px; bottom:calc(env(safe-area-inset-bottom,0px) + 65px); right:80px; z-index:100; pointer-events:none; }
+.vi-username { font-size:17px; font-weight:700; margin-bottom:6px; text-shadow:0 1px 4px rgba(0,0,0,0.5); }
+.vi-desc { font-size:14px; color:rgba(255,255,255,0.92); line-height:1.4; text-shadow:0 1px 3px rgba(0,0,0,0.4); }
+
+/* ══ 进度条 ══ */
+.prog-bar { position:fixed; bottom:calc(env(safe-area-inset-bottom,0px) + 55px); left:0; right:0; height:2px; background:rgba(255,255,255,0.18); z-index:100; }
+.prog-fill { height:100%; width:0%; border-radius:1px; background:rgba(255,255,255,0.75); transition:width 0.3s linear; }
+
+/* ══ 缓冲加载圈（视频卡顿时显示） ══ */
+.buf-spinner {
+position:absolute; top:50%; left:50%;
+transform:translate(-50%,-50%);
+width:40px; height:40px;
+border:3px solid rgba(255,255,255,0.2);
+border-top-color:rgba(255,255,255,0.8);
+border-radius:50%;
+animation:spin 0.8s linear infinite;
+z-index:6; opacity:0; pointer-events:none;
+transition:opacity 0.2s;
+}
+.video-section.buffering .buf-spinner { opacity:1; }
+@keyframes spin { to { transform:translate(-50%,-50%) rotate(360deg); } }
+
+/* ══ Toast ══ */
+#toast {
+position:fixed; top:50%; left:50%;
+transform:translate(-50%,-50%);
+background:rgba(0,0,0,0.75); color:#fff;
+font-size:15px; padding:12px 24px;
+border-radius:8px; z-index:9999;
+opacity:0; pointer-events:none;
+transition:opacity 0.25s;
+white-space:nowrap;
+}
+#toast.show { opacity:1; }
+
+/* ══ 飘心 ══ */
+.tap-heart {
+position:fixed; width:80px; height:80px;
+pointer-events:none; z-index:999;
+transform:translate(-50%,-50%) scale(0);
+animation:heartPop .85s ease-out forwards;
+}
+@keyframes heartPop {
+0%  { transform:translate(-50%,-50%) scale(.3); opacity:0; }
+20% { transform:translate(-50%,-50%) scale(1.3); opacity:1; }
+65% { transform:translate(-50%,-110%) scale(1.1); opacity:.8; }
+100%{ transform:translate(-50%,-200%) scale(.8); opacity:0; }
+}
 </style>
+
 </head>
 <body>
 
-<div id="toast" class="toast">功能开发中...</div>
-
+<div id="toast">功能开发中...</div>
 <div class="mask-top"></div>
 <div class="mask-bottom"></div>
+
+<!-- 顶部导航 -->
 
 <nav class="top-nav">
   <div class="nav-menu" onclick="showToast('功能开发中...')"><span></span><span></span><span></span></div>
@@ -127,39 +195,78 @@
   </div>
 </nav>
 
+<!-- 右侧操作栏 -->
+
 <div class="side-bar">
   <div class="avatar-wrap">
-    <div class="avatar-img" onclick="goToProfile()"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#222"/><text x="50%" y="55%" text-anchor="middle" fill="#888" font-size="16">Avatar</text></svg></div>
+    <div class="avatar-img" onclick="goToProfile()">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="100" fill="#1a1a2e"/>
+        <ellipse cx="50" cy="62" rx="28" ry="22" fill="#f5c5a3"/>
+        <ellipse cx="50" cy="48" rx="22" ry="24" fill="#f5c5a3"/>
+        <ellipse cx="50" cy="36" rx="24" ry="20" fill="#1a1a1a"/>
+        <rect x="26" y="30" width="10" height="36" rx="4" fill="#1a1a1a"/>
+        <rect x="64" y="30" width="10" height="36" rx="4" fill="#1a1a1a"/>
+        <ellipse cx="50" cy="26" rx="22" ry="14" fill="#1a1a1a"/>
+        <ellipse cx="40" cy="50" rx="5" ry="6" fill="#1a1a1a"/>
+        <ellipse cx="60" cy="50" rx="5" ry="6" fill="#1a1a1a"/>
+        <circle cx="41.5" cy="48.5" r="1.5" fill="#fff"/>
+        <circle cx="61.5" cy="48.5" r="1.5" fill="#fff"/>
+        <path d="M44 60 Q50 65 56 60" stroke="#d4896a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
     <div class="avatar-plus" id="followBtn" onclick="handleFollow(event)">+</div>
   </div>
-  
+
   <div class="side-btn" onclick="toggleLike()">
-    <div class="icon-wrap"><svg id="heartIcon" width="38" height="38" viewBox="0 0 24 24" fill="#fff"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>
-    <span class="label">37.1万</span>
+    <div class="icon-wrap">
+      <svg id="heartIcon" width="38" height="38" viewBox="0 0 24 24" fill="#fff">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+    </div>
+    <span class="label" id="likeCount">37.1万</span>
   </div>
-  
+
   <div class="side-btn" onclick="showToast('功能开发中...')">
-    <div class="icon-wrap"><svg width="34" height="34" viewBox="0 0 24 24" fill="#fff"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+    <div class="icon-wrap">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="#fff"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
     <span class="label">4982</span>
   </div>
-  
+
   <div class="side-btn" onclick="toggleFavorite()">
-    <div class="icon-wrap"><svg id="starIcon" width="34" height="34" viewBox="0 0 24 24" fill="#fff"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
+    <div class="icon-wrap">
+      <svg id="starIcon" width="34" height="34" viewBox="0 0 24 24" fill="#fff">
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+      </svg>
+    </div>
     <span class="label">1.7万</span>
   </div>
-  
+
   <div class="side-btn" onclick="showToast('功能开发中...')">
-    <div class="icon-wrap"><svg width="32" height="32" viewBox="0 0 24 24" fill="#fff"><path d="M14 4.5V1l7 7-7 7v-4.1c-5 0-8.5 1.6-11 5.1 1-5 4-10 11-11z"/></svg></div>
+    <div class="icon-wrap">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="#fff"><path d="M14 4.5V1l7 7-7 7v-4.1c-5 0-8.5 1.6-11 5.1 1-5 4-10 11-11z"/></svg>
+    </div>
     <span class="label">3.2万</span>
   </div>
 </div>
 
+<!-- 视频信息 -->
+
 <div class="video-info">
-  <div class="vi-username">@沉浸式前端体验</div>
+  <div class="vi-username">@我的Pinata视频</div>
   <div class="vi-desc">全套交互已加载，点击屏幕暂停试试！✨</div>
 </div>
 
+<!-- 进度条 -->
+
+<div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+
+<!-- 视频容器 -->
+
 <div id="videoContainer"></div>
+
+<!-- 底部导航 -->
 
 <div class="tab-bar">
   <div class="tab-item active"><span class="tab-label">首页</span></div>
@@ -170,115 +277,280 @@
 </div>
 
 <script>
-  // ================= 基础组件功能 =================
-  let toastTimer;
-  function showToast(text) {
-    const toast = document.getElementById('toast');
-    toast.innerText = text;
-    toast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-      toast.classList.remove('show');
-    }, 1500);
-  }
+/* ════════════════════════════════════════
+   视频列表
+════════════════════════════════════════ */
+const videoUrls = [
+  "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeied7iqyfz7fo5tg6jumdcp53cezwlmvouazyt5sqj5nwlzohn7vxm",
+  "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeihokl2aj6p2ftxwivc6ty6xg3zx3lu3bw2norvlyhdjmrkb4shaiq",
+  "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeifkqtkjlgcfs6ikmkc5cc6psr23hhuz2kgy62teikohlas63prqou",
+  "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeidsgny5mif27lqu7bt5z7g4a63raoxwjhslhmmegzwhljgjd3iggq",
+  "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeiexn5pzogmujgmvwnmzdqw2axyh3s3ixumjlabcei4vbw35abyvhe",
+  "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeidifsdf3xpabcrkypgu4c77i7pmgdru4iea2zus6rlbw6vfjfzvvy",
+  "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeibafjebhoq6xh3esnbs6w2mao4cun4qfslruyaozgx54wgbjfbxoe",
+  "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeidbpdoz4mtbk45wisqvcwgdewao4obuvwo2s5narprsr7rypsd76u",
+  "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeifskd2zsnlquiyp4bdv2q2b2rzukscpr6lurer75buhy6qgb545ea",
+  "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeie53svjmqhznjlosvlkvtu7cckzrgwexo3h2ljvartpuhzsr3kdki"
+];
 
-  // 关注逻辑
-  function handleFollow(e) {
-    e.stopPropagation(); // 阻止触发下方的头像点击
-    const btn = document.getElementById('followBtn');
-    btn.style.display = 'none'; // 隐藏红十字
-    showToast('已关注');
-  }
+/* ════════════════════════════════════════
+   头像跳转链接（改这里）
+════════════════════════════════════════ */
+const PROFILE_URL = 'https://pinata.cloud';
 
-    // 修改后的头像跳转逻辑
-  function goToProfile() {
-    showToast('正在连接客服中心...'); // 修改提示语，更贴合场景
-    setTimeout(() => {
-      // 假设你的客服端文件名叫 kefu.html
-      // 如果是在线网址，请填写 "https://your-link.com"
-      window.location.href = "kefu.html"; 
-    }, 800);
-  }
-  
-  // 点赞 (红心)
-  let liked = false;
-  function toggleLike() {
-    liked = !liked;
-    document.getElementById('heartIcon').setAttribute('fill', liked ? '#fe2c55' : '#fff');
-  }
+/* ════════════════════════════════════════
+   构建 DOM：每个 section 含 video + 骨架屏 + 暂停图标 + 缓冲圈
+════════════════════════════════════════ */
+const container = document.getElementById('videoContainer');
+const sections  = [];
+const videos    = [];
 
-  // 收藏 (黄星)
-  let favorited = false;
-  function toggleFavorite() {
-    favorited = !favorited;
-    document.getElementById('starIcon').setAttribute('fill', favorited ? '#fac300' : '#fff');
-  }
+videoUrls.forEach((url, i) => {
+  const section = document.createElement('div');
+  section.className = 'video-section';
 
+  // 骨架屏（加载占位）
+  const skeleton = document.createElement('div');
+  skeleton.className = 'skeleton';
 
-  // ================= 视频列表与播放逻辑 =================
-  const videoUrls = [
-    "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeied7iqyfz7fo5tg6jumdcp53cezwlmvouazyt5sqj5nwlzohn7vxm",
-    "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeihokl2aj6p2ftxwivc6ty6xg3zx3lu3bw2norvlyhdjmrkb4shaiq",
-    "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeifkqtkjlgcfs6ikmkc5cc6psr23hhuz2kgy62teikohlas63prqou",
-    "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeidsgny5mif27lqu7bt5z7g4a63raoxwjhslhmmegzwhljgjd3iggq",
-    "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeiexn5pzogmujgmvwnmzdqw2axyh3s3ixumjlabcei4vbw35abyvhe",
-    "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeidifsdf3xpabcrkypgu4c77i7pmgdru4iea2zus6rlbw6vfjfzvvy",
-    "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeibafjebhoq6xh3esnbs6w2mao4cun4qfslruyaozgx54wgbjfbxoe",
-    "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeidbpdoz4mtbk45wisqvcwgdewao4obuvwo2s5narprsr7rypsd76u",
-    "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeifskd2zsnlquiyp4bdv2q2b2rzukscpr6lurer75buhy6qgb545ea",
-    "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeie53svjmqhznjlosvlkvtu7cckzrgwexo3h2ljvartpuhzsr3kdki"
-  ];
+  // 视频元素：默认不设 src，等预加载时再赋值
+  const video = document.createElement('video');
+  video.className = 'main-video';
+  video.loop = true;
+  video.playsInline = true;
+  video.muted = true;
+  video.setAttribute('playsinline', '');
+  video.setAttribute('webkit-playsinline', '');
+  // preload="auto" 让浏览器尽量缓冲
+  video.setAttribute('preload', 'auto');
+  // x5相关属性（微信/QQ浏览器兼容）
+  video.setAttribute('x5-video-player-type', 'h5');
+  video.setAttribute('x5-video-player-fullscreen', 'false');
 
-  const container = document.getElementById('videoContainer');
-  videoUrls.forEach(url => {
-    const section = document.createElement('div');
-    section.className = 'video-section';
-    // 注入视频与居中的播放Icon (默认隐藏，暂停时显示)
-    section.innerHTML = `
-      <video class="main-video" src="${url}" loop playsinline muted></video>
-      <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-    `;
-    container.appendChild(section);
+  // 暂停图标
+  const playBtn = document.createElement('div');
+  playBtn.className = 'play-btn';
+  playBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+
+  // 缓冲圈
+  const spinner = document.createElement('div');
+  spinner.className = 'buf-spinner';
+
+  // 骨架屏在视频可播放后隐藏
+  video.addEventListener('canplay', () => {
+    skeleton.classList.add('hidden');
+    // 延迟后完全移除，节省 DOM
+    setTimeout(() => { if (skeleton.parentNode) skeleton.remove(); }, 400);
   });
 
-  // 单击屏幕视频播放/暂停逻辑
-  container.addEventListener('click', (e) => {
-    // 确保点击的刚好是视频层
-    if (e.target.tagName === 'VIDEO') {
-      const video = e.target;
-      const section = video.closest('.video-section');
-      
-      if (video.paused) {
-        video.play();
-        section.classList.remove('paused');
-      } else {
-        video.pause();
-        section.classList.add('paused');
+  // 缓冲检测：waiting 显示圈，playing 隐藏
+  video.addEventListener('waiting', () => section.classList.add('buffering'));
+  video.addEventListener('playing', () => section.classList.remove('buffering'));
+  video.addEventListener('canplaythrough', () => section.classList.remove('buffering'));
+
+  section.appendChild(video);
+  section.appendChild(skeleton);
+  section.appendChild(playBtn);
+  section.appendChild(spinner);
+  container.appendChild(section);
+
+  sections.push(section);
+  videos.push(video);
+});
+
+/* ════════════════════════════════════════
+   预加载策略
+   - 当前视频：立即加载 + 播放
+   - 前后各 1 个：设 src 预加载（浏览器会缓冲开头几秒）
+   - 超出范围：清除 src 释放内存
+════════════════════════════════════════ */
+let currentIdx = 0;
+
+function preload(idx) {
+  videos.forEach((v, i) => {
+    const diff = Math.abs(i - idx);
+
+    if (diff === 0) {
+      // 当前视频：确保已设 src
+      if (!v.src || !v.src.includes('ipfs')) {
+        v.src = videoUrls[i];
+        v.load();
+      }
+    } else if (diff === 1) {
+      // 前后各 1 个：预加载
+      if (!v.src || !v.src.includes('ipfs')) {
+        v.src = videoUrls[i];
+        v.preload = 'auto';
+        v.load();
+      }
+    } else if (diff >= 3) {
+      // 距离 ≥3：释放（节省内存/流量）
+      if (v.src) {
+        v.pause();
+        v.removeAttribute('src');
+        v.load(); // 触发资源释放
       }
     }
+    // diff === 2：保持不动，已在内存中就不动
   });
+}
 
-  // 滑动自动播放监控
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const v = entry.target.querySelector('video');
-      if (entry.isIntersecting) { 
-        v.play().catch(()=>{}); 
-        entry.target.classList.remove('paused'); // 划入新视频保证隐藏暂停icon
-      } else { 
-        v.pause(); 
-        v.currentTime = 0; 
-        entry.target.classList.remove('paused');
+/* ════════════════════════════════════════
+   IntersectionObserver：视频进入视口时播放
+════════════════════════════════════════ */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    const idx = sections.indexOf(entry.target);
+    const v   = videos[idx];
+
+    if (entry.isIntersecting) {
+      currentIdx = idx;
+
+      // 确保 src 已设
+      if (!v.src || !v.src.includes('ipfs')) {
+        v.src = videoUrls[idx];
       }
-    });
-  }, { threshold: 0.6 });
 
-  document.querySelectorAll('.video-section').forEach(s => observer.observe(s));
+      v.currentTime = 0;
+      v.play().catch(() => {});
+      entry.target.classList.remove('paused');
+      startProgress(v);
 
-  // 解除系统自动静音 (用户首次交互)
-  document.addEventListener('touchstart', () => {
-    document.querySelectorAll('video').forEach(v => v.muted = false);
-  }, { once: true });
+      // 触发预加载周边视频
+      preload(idx);
+
+    } else {
+      v.pause();
+      // 离开超过 2 屏才重置 currentTime，避免回划时重头
+      if (Math.abs(idx - currentIdx) > 1) v.currentTime = 0;
+      entry.target.classList.remove('paused', 'buffering');
+    }
+  });
+}, { threshold: 0.6 });
+
+sections.forEach(s => observer.observe(s));
+
+// 初始预加载前 2 个
+preload(0);
+
+/* ════════════════════════════════════════
+   进度条
+════════════════════════════════════════ */
+const progFill = document.getElementById('progFill');
+let progTimer;
+function startProgress(v) {
+  clearInterval(progTimer);
+  progFill.style.transition = 'none';
+  progFill.style.width = '0%';
+  requestAnimationFrame(() => {
+    progFill.style.transition = 'width 0.3s linear';
+    progTimer = setInterval(() => {
+      if (v.duration) progFill.style.width = (v.currentTime / v.duration * 100) + '%';
+    }, 300);
+  });
+}
+
+/* ════════════════════════════════════════
+   单击：暂停 / 播放
+════════════════════════════════════════ */
+container.addEventListener('click', e => {
+  if (e.target.closest('.side-bar,.top-nav,.tab-bar,.video-info')) return;
+  const section = e.target.closest('.video-section');
+  if (!section) return;
+  const v = section.querySelector('video');
+  if (!v) return;
+
+  if (v.paused) {
+    v.play();
+    section.classList.remove('paused');
+  } else {
+    v.pause();
+    section.classList.add('paused');
+  }
+});
+
+/* ════════════════════════════════════════
+   双击：飘心 + 自动点赞
+════════════════════════════════════════ */
+let lastTap = 0;
+container.addEventListener('touchend', e => {
+  if (e.target.closest('.side-bar,.top-nav,.tab-bar,.video-info')) return;
+  const now = Date.now();
+  if (now - lastTap < 280) {
+    const t = e.changedTouches[0];
+    spawnHeart(t.pageX, t.pageY);
+    if (!liked) toggleLike();
+  }
+  lastTap = now;
+});
+
+function spawnHeart(x, y) {
+  const el = document.createElement('div');
+  el.className = 'tap-heart';
+  el.style.cssText = `left:${x}px;top:${y}px`;
+  el.innerHTML = `<svg viewBox="0 0 24 24" fill="#fe2c55"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 870);
+}
+
+/* ════════════════════════════════════════
+   点赞
+════════════════════════════════════════ */
+let liked = false;
+function toggleLike() {
+  liked = !liked;
+  const icon = document.getElementById('heartIcon');
+  icon.setAttribute('fill', liked ? '#fe2c55' : '#fff');
+  icon.style.transform = 'scale(1.3)';
+  setTimeout(() => icon.style.transform = '', 200);
+}
+
+/* ════════════════════════════════════════
+   收藏
+════════════════════════════════════════ */
+let favorited = false;
+function toggleFavorite() {
+  favorited = !favorited;
+  const icon = document.getElementById('starIcon');
+  icon.setAttribute('fill', favorited ? '#fac300' : '#fff');
+  icon.style.transform = 'scale(1.3)';
+  setTimeout(() => icon.style.transform = '', 200);
+}
+
+/* ════════════════════════════════════════
+   关注
+════════════════════════════════════════ */
+function handleFollow(e) {
+  e.stopPropagation();
+  document.getElementById('followBtn').classList.add('gone');
+  showToast('已关注');
+}
+
+/* ════════════════════════════════════════
+   头像跳转
+════════════════════════════════════════ */
+function goToProfile() {
+  window.open(PROFILE_URL, '_blank');
+}
+
+/* ════════════════════════════════════════
+   解除静音（首次用户交互）
+════════════════════════════════════════ */
+document.addEventListener('touchstart', () => {
+  videos.forEach(v => { if (v.src) v.muted = false; });
+}, { once: true });
+
+/* ════════════════════════════════════════
+   Toast
+════════════════════════════════════════ */
+let toastTimer;
+function showToast(text) {
+  const t = document.getElementById('toast');
+  t.textContent = text;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+}
 </script>
 
 </body>
