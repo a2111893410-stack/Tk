@@ -6,77 +6,52 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>抖音</title>
 <style>
-  :root {
-    --red: #fe2c55;
-    --cyan: #25f4ee;
-    --yellow: #fac300;
-  }
+  :root { --red:#fe2c55; --cyan:#25f4ee; --yellow:#fac300; }
 
 - { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html { -webkit-text-size-adjust:100%; height:-webkit-fill-available; }
 
 body {
-background:#000;
--webkit-font-smoothing:antialiased;
--moz-osx-font-smoothing:grayscale;
+background:#000; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
 font-family:-apple-system,“PingFang SC”,“Helvetica Neue”,sans-serif;
-overflow:hidden;
-height:100vh; height:-webkit-fill-available; height:100dvh;
+overflow:hidden; height:100vh; height:-webkit-fill-available; height:100dvh;
 width:100vw; color:#fff; user-select:none;
 }
 
-/* ══ 滚动容器 ══ */
 #videoContainer {
-position:fixed; top:0; left:0;
-width:100vw; height:100vh; height:100dvh;
-overflow-y:scroll;
-scroll-snap-type:y mandatory;
-scrollbar-width:none;
--webkit-overflow-scrolling:touch;
-z-index:1;
+position:fixed; top:0; left:0; width:100vw; height:100vh; height:100dvh;
+overflow-y:scroll; scroll-snap-type:y mandatory; scrollbar-width:none;
+-webkit-overflow-scrolling:touch; z-index:1;
 }
 #videoContainer::-webkit-scrollbar { display:none; }
 
-/* ══ 视频页 ══ */
 .video-section {
-position:relative;
-width:100vw; height:100vh; height:100dvh;
-scroll-snap-align:start; overflow:hidden;
-background:#111;
+position:relative; width:100vw; height:100vh; height:100dvh;
+scroll-snap-align:start; overflow:hidden; background:#111;
 }
 .main-video { width:100%; height:100%; object-fit:cover; display:block; }
 
-/* ══ 骨架屏 ══ */
 .skeleton {
 position:absolute; inset:0;
 background:linear-gradient(135deg,#1a1a1a 0%,#2a2a2a 50%,#1a1a1a 100%);
-background-size:200% 200%;
-animation:shimmer 1.5s ease-in-out infinite;
+background-size:200% 200%; animation:shimmer 1.5s ease-in-out infinite;
 z-index:3; pointer-events:none; transition:opacity 0.3s;
 }
 .skeleton.hidden { opacity:0; }
-@keyframes shimmer {
-0%  { background-position:200% 0; }
-100%{ background-position:-200% 0; }
-}
+@keyframes shimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
 
-/* ══ 暂停图标 ══ */
 .play-btn {
-position:absolute; top:50%; left:50%;
-transform:translate(-50%,-50%);
-width:68px; height:68px; background:rgba(0,0,0,0.35);
-border-radius:50%; display:flex; align-items:center; justify-content:center;
-opacity:0; pointer-events:none; transition:opacity 0.2s; z-index:5;
-backdrop-filter:blur(4px);
+position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+width:68px; height:68px; background:rgba(0,0,0,0.35); border-radius:50%;
+display:flex; align-items:center; justify-content:center;
+opacity:0; pointer-events:none; transition:opacity 0.2s; z-index:5; backdrop-filter:blur(4px);
 }
 .play-btn svg { width:34px; height:34px; margin-left:5px; fill:rgba(255,255,255,0.92); }
 .video-section.paused .play-btn { opacity:1; }
 
-/* ══ 渐变遮罩 ══ */
 .mask-top  { position:fixed; top:0; left:0; right:0; height:180px; background:linear-gradient(to bottom,rgba(0,0,0,0.42) 0%,transparent 100%); z-index:2; pointer-events:none; }
 .mask-bottom { position:fixed; bottom:0; left:0; right:0; height:280px; background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.1) 60%,transparent 100%); z-index:2; pointer-events:none; }
 
-/* ══ 顶部导航 ══ */
 .top-nav { position:fixed; top:env(safe-area-inset-top,44px); left:0; right:0; z-index:100; display:flex; align-items:center; padding:0 12px; height:44px; }
 .nav-menu { width:36px; display:flex; flex-direction:column; gap:4px; flex-shrink:0; cursor:pointer; }
 .nav-menu span { display:block; height:2px; background:#fff; border-radius:1px; width:22px; }
@@ -88,7 +63,6 @@ backdrop-filter:blur(4px);
 .nav-tab.active::after { content:’’; position:absolute; bottom:4px; left:50%; transform:translateX(-50%); width:16px; height:2.5px; background:#fff; border-radius:2px; }
 .nav-search { width:36px; display:flex; align-items:center; justify-content:flex-end; flex-shrink:0; cursor:pointer; }
 
-/* ══ 右侧操作栏 ══ */
 .side-bar { position:fixed; right:10px; bottom:calc(env(safe-area-inset-bottom,0px) + 100px); z-index:100; display:flex; flex-direction:column; align-items:center; transition:opacity 0.3s; }
 .avatar-wrap { width:52px; height:52px; position:relative; margin-bottom:20px; cursor:pointer; }
 .avatar-img { width:50px; height:50px; border-radius:50%; border:1.8px solid #fff; background:#333; overflow:hidden; }
@@ -100,7 +74,6 @@ backdrop-filter:blur(4px);
 .side-btn .icon-wrap svg { transition:transform 0.15s; filter:drop-shadow(0 2px 5px rgba(0,0,0,0.4)); }
 .side-btn .label { font-size:12px; color:#fff; font-weight:500; text-shadow:0 1px 3px rgba(0,0,0,0.5); margin-top:2px; }
 
-/* ══ 底部导航 ══ */
 .tab-bar { position:fixed; bottom:0; left:0; right:0; height:calc(55px + env(safe-area-inset-bottom,0px)); padding-bottom:env(safe-area-inset-bottom,0px); background:#000; border-top:0.5px solid rgba(255,255,255,0.1); z-index:200; display:flex; align-items:center; }
 .tab-item { flex:1; display:flex; align-items:center; justify-content:center; height:100%; cursor:pointer; }
 .tab-item .tab-label { font-size:16px; color:rgba(255,255,255,0.45); font-weight:600; }
@@ -108,166 +81,41 @@ backdrop-filter:blur(4px);
 .tab-publish { flex:1; display:flex; align-items:center; justify-content:center; height:55px; cursor:pointer; }
 .pub-inner { width:36px; height:26px; border:2px solid rgba(255,255,255,0.9); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:24px; font-weight:300; line-height:1; }
 
-/* ══ 视频信息 ══ */
-.video-info { position:fixed; left:14px; bottom:calc(env(safe-area-inset-bottom,0px) + 65px); right:80px; z-index:100; pointer-events:none; transition:opacity 0.3s; }
+.video-info { position:fixed; left:14px; bottom:calc(env(safe-area-inset-bottom,0px) + 65px); right:80px; z-index:100; pointer-events:none; }
 .vi-username { font-size:17px; font-weight:700; margin-bottom:6px; text-shadow:0 1px 4px rgba(0,0,0,0.5); }
 .vi-desc { font-size:14px; color:rgba(255,255,255,0.92); line-height:1.4; text-shadow:0 1px 3px rgba(0,0,0,0.4); }
 
-/* ══ 进度条 ══ */
 .prog-bar { position:fixed; bottom:calc(env(safe-area-inset-bottom,0px) + 55px); left:0; right:0; height:2px; background:rgba(255,255,255,0.18); z-index:100; }
 .prog-fill { height:100%; width:0%; border-radius:1px; background:rgba(255,255,255,0.75); transition:width 0.3s linear; }
 
-/* ══ 缓冲圈 ══ */
 .buf-spinner { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:40px; height:40px; border:3px solid rgba(255,255,255,0.2); border-top-color:rgba(255,255,255,0.8); border-radius:50%; animation:spin 0.8s linear infinite; z-index:6; opacity:0; pointer-events:none; transition:opacity 0.2s; }
 .video-section.buffering .buf-spinner { opacity:1; }
-@keyframes spin { to { transform:translate(-50%,-50%) rotate(360deg); } }
+@keyframes spin { to{transform:translate(-50%,-50%) rotate(360deg);} }
 
-/* ══ 静音提示 ══ */
 #muteBar { position:fixed; top:calc(env(safe-area-inset-top,44px) + 50px); left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.65); color:#fff; font-size:13px; padding:8px 18px; border-radius:20px; z-index:9998; display:flex; align-items:center; gap:6px; opacity:0; pointer-events:none; transition:opacity 0.3s; }
 #muteBar.show { opacity:1; }
 #muteBar svg { width:16px; height:16px; fill:#fff; flex-shrink:0; }
 
-/* ══ Toast ══ */
 #toast { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.75); color:#fff; font-size:15px; padding:12px 24px; border-radius:8px; z-index:9999; opacity:0; pointer-events:none; transition:opacity 0.25s; white-space:nowrap; }
 #toast.show { opacity:1; }
 
-/* ══ 飘心 ══ */
 .tap-heart { position:fixed; width:80px; height:80px; pointer-events:none; z-index:999; transform:translate(-50%,-50%) scale(0); animation:heartPop .85s ease-out forwards; }
 @keyframes heartPop {
-0%  { transform:translate(-50%,-50%) scale(.3); opacity:0; }
-20% { transform:translate(-50%,-50%) scale(1.3); opacity:1; }
-65% { transform:translate(-50%,-110%) scale(1.1); opacity:.8; }
-100%{ transform:translate(-50%,-200%) scale(.8); opacity:0; }
+0%  {transform:translate(-50%,-50%) scale(.3);opacity:0;}
+20% {transform:translate(-50%,-50%) scale(1.3);opacity:1;}
+65% {transform:translate(-50%,-110%) scale(1.1);opacity:.8;}
+100%{transform:translate(-50%,-200%) scale(.8);opacity:0;}
 }
 
-/* ══ 末尾页 ══ */
 .end-section { width:100vw; height:100vh; height:100dvh; scroll-snap-align:start; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
 .end-title { font-size:17px; font-weight:600; color:rgba(255,255,255,0.75); }
 .end-sub { font-size:13px; color:rgba(255,255,255,0.38); }
-
-/* ══════════════════════════════════════════════════════
-广告页样式
-.ad-section 与 .video-section 同级，走同一套 scroll-snap
-══════════════════════════════════════════════════════ */
-.ad-section {
-position:relative;
-width:100vw; height:100vh; height:100dvh;
-scroll-snap-align:start; overflow:hidden;
-background:#080810;
-display:flex; flex-direction:column;
-align-items:center; justify-content:center;
-/* 进入时淡入，由 JS 添加 .ad-visible 触发 */
-opacity:0; transition:opacity 0.45s ease;
-}
-.ad-section.ad-visible { opacity:1; }
-
-/* 背景光晕 */
-.ad-section::before {
-content:’’;
-position:absolute; inset:0; pointer-events:none;
-background:
-radial-gradient(ellipse 80% 55% at 50% 15%, rgba(254,44,85,0.2) 0%, transparent 70%),
-radial-gradient(ellipse 60% 40% at 85% 85%, rgba(37,244,238,0.12) 0%, transparent 60%);
-}
-
-/* 广告角标 */
-.ad-badge {
-position:absolute;
-top:calc(env(safe-area-inset-top,44px) + 52px); left:16px;
-background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18);
-border-radius:4px; padding:3px 8px;
-font-size:11px; color:rgba(255,255,255,0.45); letter-spacing:1.5px;
-backdrop-filter:blur(8px); z-index:10;
-}
-
-/* 内容区 */
-.ad-content {
-position:relative; z-index:5; width:100%; padding:0 28px;
-display:flex; flex-direction:column; align-items:center;
-animation:adIn 0.55s ease 0.05s both;
-}
-@keyframes adIn {
-from { transform:translateY(20px); opacity:0; }
-to   { transform:translateY(0);    opacity:1; }
-}
-
-/* 产品图容器 */
-.ad-product-img {
-width:150px; height:150px; border-radius:22px; overflow:hidden;
-margin-bottom:24px; flex-shrink:0;
-box-shadow:0 16px 48px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.07);
-}
-.ad-product-img svg { width:100%; height:100%; display:block; }
-
-/* 品牌名 */
-.ad-brand {
-font-size:11px; font-weight:700; letter-spacing:3px;
-color:var(–red); text-transform:uppercase; margin-bottom:10px;
-}
-
-/* 标题 */
-.ad-title {
-font-size:24px; font-weight:800; color:#fff;
-text-align:center; line-height:1.28; margin-bottom:12px; letter-spacing:-0.3px;
-}
-
-/* 描述 */
-.ad-desc {
-font-size:13px; color:rgba(255,255,255,0.5);
-text-align:center; line-height:1.7; margin-bottom:10px; max-width:270px;
-}
-
-/* 标签 */
-.ad-tags { display:flex; gap:7px; flex-wrap:wrap; justify-content:center; margin-bottom:32px; }
-.ad-tag { padding:4px 11px; border-radius:100px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); font-size:11px; color:rgba(255,255,255,0.55); }
-
-/* 联系客服按钮 */
-.ad-btn {
-width:100%; max-width:272px; height:50px;
-background:linear-gradient(130deg,#fe2c55 0%,#ff7a7a 100%);
-border:none; border-radius:100px;
-color:#fff; font-size:16px; font-weight:700;
-cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
-box-shadow:0 8px 28px rgba(254,44,85,0.42);
-/* 呼吸动画 */
-animation:breathe 2.4s ease-in-out infinite;
-position:relative; overflow:hidden; -webkit-appearance:none;
-}
-@keyframes breathe {
-0%,100% { box-shadow:0 8px 28px rgba(254,44,85,0.42); transform:scale(1); }
-50%      { box-shadow:0 12px 40px rgba(254,44,85,0.62); transform:scale(1.025); }
-}
-/* 扫光效果 */
-.ad-btn::after {
-content:’’; position:absolute; top:0; left:-100%; width:55%; height:100%;
-background:linear-gradient(90deg,transparent,rgba(255,255,255,0.22),transparent);
-animation:btnShine 3s ease-in-out infinite 0.8s;
-}
-@keyframes btnShine { 0%{ left:-100%; } 40%{ left:140%; } 100%{ left:140%; } }
-
-/* 底部小字 */
-.ad-footnote { margin-top:14px; font-size:11px; color:rgba(255,255,255,0.22); text-align:center; }
-
-/* 上划提示 */
-.ad-swipe-hint {
-position:absolute; bottom:calc(env(safe-area-inset-bottom,0px) + 72px);
-left:50%; transform:translateX(-50%);
-display:flex; flex-direction:column; align-items:center; gap:3px;
-animation:hintFloat 1.8s ease-in-out infinite;
-}
-@keyframes hintFloat {
-0%,100%{ transform:translateX(-50%) translateY(0); }
-50%    { transform:translateX(-50%) translateY(-7px); }
-}
-.ad-swipe-hint svg { width:20px; height:20px; fill:rgba(255,255,255,0.3); }
-.ad-swipe-hint span { font-size:11px; color:rgba(255,255,255,0.28); }
 </style>
 
 </head>
 <body>
 
 <div id="toast"></div>
-
 <div id="muteBar">
   <svg viewBox="0 0 24 24"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
   点击屏幕开启声音
@@ -333,7 +181,6 @@ animation:hintFloat 1.8s ease-in-out infinite;
 </div>
 
 <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
-
 <div id="videoContainer"></div>
 
 <div class="tab-bar">
@@ -345,9 +192,6 @@ animation:hintFloat 1.8s ease-in-out infinite;
 </div>
 
 <script>
-/* ══════════════════════════════════════════════════════════
-   视频列表
-══════════════════════════════════════════════════════════ */
 const videoUrls = [
   "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeied7iqyfz7fo5tg6jumdcp53cezwlmvouazyt5sqj5nwlzohn7vxm",
   "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeihokl2aj6p2ftxwivc6ty6xg3zx3lu3bw2norvlyhdjmrkb4shaiq",
@@ -361,107 +205,39 @@ const videoUrls = [
   "https://turquoise-absolute-cheetah-543.mypinata.cloud/ipfs/bafybeie53svjmqhznjlosvlkvtu7cckzrgwexo3h2ljvartpuhzsr3kdki"
 ];
 
-const PROFILE_URL = 'https://pinata.cloud';
+const PROFILE_URL  = 'https://pinata.cloud';
 
 /* ══════════════════════════════════════════════════════════
-   广告模板配置
-   ─ 如需新增广告，在 adTemplates 数组追加对象即可
-   ─ kefuUrl：点击"联系客服"的跳转地址
-   ─ productSvg：产品插画（可替换为 <img src="..."> 标签）
+   广告配置
+   AD_INTERVAL : 每几个视频跳一次广告
+   AD_PAGE     : 广告页文件名
+   adTplCount  : ad.html 里的模板数量（循环取余用）
 ══════════════════════════════════════════════════════════ */
-const adTemplates = [
-  {
-    brand: 'SKINCARE PRO',
-    title: '告别熬夜肌\n28天焕新计划',
-    desc: '含烟酰胺 + 玻色因双效配方，睡前1泵，醒来看见不同',
-    tags: ['修护熬夜肌', '淡化细纹', '深层补水'],
-    kefuUrl: 'kefu.html',
-    btnText: '立即咨询客服',
-    productSvg: `<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="150" height="150" fill="#120d1e"/>
-      <ellipse cx="75" cy="75" rx="46" ry="60" fill="#2a1540" stroke="rgba(254,44,85,0.25)" stroke-width="1"/>
-      <rect x="55" y="52" width="40" height="46" rx="9" fill="url(#pg1)"/>
-      <defs>
-        <linearGradient id="pg1" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#fe2c55"/>
-          <stop offset="100%" stop-color="#ffaabb"/>
-        </linearGradient>
-      </defs>
-      <rect x="63" y="44" width="24" height="12" rx="5" fill="#1a0d2e"/>
-      <text x="75" y="78" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-weight="700">SKINCARE</text>
-      <text x="75" y="90" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,0.55)" font-family="sans-serif">PRO · SERUM</text>
-      <circle cx="75" cy="22" r="10" fill="rgba(254,44,85,0.12)" stroke="rgba(254,44,85,0.28)" stroke-width="1"/>
-      <circle cx="75" cy="22" r="3.5" fill="#fe2c55" opacity="0.75"/>
-    </svg>`
-  },
-  {
-    brand: 'TECH GEAR',
-    title: '无线降噪耳机\n沉浸你的世界',
-    desc: '40dB主动降噪 · 36小时续航 · 0延迟游戏模式，限时立减200元',
-    tags: ['主动降噪', '36h续航', '游戏低延迟'],
-    kefuUrl: 'kefu.html',
-    btnText: '联系客服咨询',
-    productSvg: `<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="150" height="150" fill="#060e18"/>
-      <path d="M32 75 Q32 26 75 26 Q118 26 118 75" stroke="#25f4ee" stroke-width="13" fill="none" stroke-linecap="round"/>
-      <rect x="20" y="70" width="20" height="34" rx="8" fill="#132030" stroke="#25f4ee" stroke-width="1.5"/>
-      <rect x="110" y="70" width="20" height="34" rx="8" fill="#132030" stroke="#25f4ee" stroke-width="1.5"/>
-      <circle cx="30"  cy="89" r="5" fill="#25f4ee" opacity="0.5"/>
-      <circle cx="120" cy="89" r="5" fill="#25f4ee" opacity="0.5"/>
-      <circle cx="75" cy="75" r="18" fill="rgba(37,244,238,0.04)" stroke="rgba(37,244,238,0.18)" stroke-width="1"/>
-    </svg>`
-  }
-];
+const AD_INTERVAL  = 3;
+const AD_PAGE      = 'ad.html';
+const AD_TPL_COUNT = 2;   // 与 ad.html 里 adTemplates 数量保持一致
 
 /* ══════════════════════════════════════════════════════════
-   广告插入间隔
-   AD_INTERVAL = 3 → 每3个视频后插一条广告
-   顺序：v0 v1 v2 [AD] v3 v4 v5 [AD] v6 v7 v8 [AD] …
+   从 sessionStorage 恢复上次的视频位置
+   ad.html 返回时会恢复到离开前的视频下标
 ══════════════════════════════════════════════════════════ */
-const AD_INTERVAL = 3;
+const savedIdx = parseInt(sessionStorage.getItem('resumeVideoIdx') || '0', 10);
+sessionStorage.removeItem('resumeVideoIdx');  // 用完即删
 
 const containerEl = document.getElementById('videoContainer');
-const sideBar     = document.getElementById('sideBar');
-const videoInfo   = document.getElementById('videoInfo');
 const progFill    = document.getElementById('progFill');
 
-/* sections：所有页面（视频 + 广告）
-   videos  ：仅视频元素，下标与 videoUrls 对应
-   pageTypes：每个 section 的类型 'video' | 'ad'
-   videoIdxMap：section → 视频下标（广告页为 -1） */
-const sections    = [];
-const videos      = [];
-const pageTypes   = [];
-const videoIdxMap = [];
+const sections = [];
+const videos   = [];
 
-let adTplIdx = 0;  // 循环使用广告模板
-let vCounter = 0;  // 视频计数器
-
-/* ──────────────────────────────────────────────────────
-   构建序列：每放 AD_INTERVAL 个视频就插一条广告
-   最后一组视频不足 AD_INTERVAL 个则不插广告
-────────────────────────────────────────────────────── */
+/* ── 构建所有视频页 ── */
 videoUrls.forEach((url, i) => {
-  // 放视频页
-  const vsec = buildVideoSection(url);
-  containerEl.appendChild(vsec);
-  sections.push(vsec);
-  pageTypes.push('video');
-  videoIdxMap.push(vCounter++);
-
-  // 每 AD_INTERVAL 个视频后（且不是最后一个视频后）插广告
-  if ((i + 1) % AD_INTERVAL === 0 && i < videoUrls.length - 1) {
-    const tpl  = adTemplates[adTplIdx % adTemplates.length];
-    adTplIdx++;
-    const asec = buildAdSection(tpl);
-    containerEl.appendChild(asec);
-    sections.push(asec);
-    pageTypes.push('ad');
-    videoIdxMap.push(-1);
-  }
+  const sec = buildVideoSection(url);
+  containerEl.appendChild(sec);
+  sections.push(sec);
 });
 
-// 末尾页
+/* ── 末尾页 ── */
 const endEl = document.createElement('div');
 endEl.className = 'end-section';
 endEl.innerHTML = `
@@ -471,6 +247,11 @@ endEl.innerHTML = `
   <div class="end-title">冒烟了</div>
   <div class="end-sub">你已经看完了全部内容 · 上划返回</div>`;
 containerEl.appendChild(endEl);
+
+/* ── 恢复到上次位置（从广告页返回时）── */
+if (savedIdx > 0 && sections[savedIdx]) {
+  sections[savedIdx].scrollIntoView({ behavior: 'instant' });
+}
 
 /* ══════════════════════════════════════════════════════════
    构建视频页 DOM
@@ -485,9 +266,9 @@ function buildVideoSection(url) {
   const vid = document.createElement('video');
   vid.className = 'main-video';
   vid.loop = true; vid.playsInline = true; vid.muted = true;
-  vid.setAttribute('playsinline', '');
-  vid.setAttribute('webkit-playsinline', '');
-  vid.setAttribute('preload', 'auto');
+  vid.setAttribute('playsinline','');
+  vid.setAttribute('webkit-playsinline','');
+  vid.setAttribute('preload','auto');
 
   const playBtn = document.createElement('div');
   playBtn.className = 'play-btn';
@@ -517,45 +298,6 @@ function buildVideoSection(url) {
 }
 
 /* ══════════════════════════════════════════════════════════
-   构建广告页 DOM
-   tpl.kefuUrl → 点击"联系客服"后跳转的地址
-══════════════════════════════════════════════════════════ */
-function buildAdSection(tpl) {
-  const sec = document.createElement('div');
-  sec.className = 'ad-section';
-
-  sec.innerHTML = `
-    <div class="ad-badge">广 告</div>
-    <div class="ad-content">
-      <div class="ad-product-img">${tpl.productSvg}</div>
-      <div class="ad-brand">${tpl.brand}</div>
-      <div class="ad-title">${tpl.title.replace(/\n/g,'<br>')}</div>
-      <div class="ad-desc">${tpl.desc}</div>
-      <div class="ad-tags">${tpl.tags.map(t=>`<span class="ad-tag">${t}</span>`).join('')}</div>
-      <button class="ad-btn" onclick="goToKefu('${tpl.kefuUrl}')">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-        </svg>
-        ${tpl.btnText}
-      </button>
-      <div class="ad-footnote">广告 · 上划继续观看</div>
-    </div>
-    <div class="ad-swipe-hint">
-      <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
-      <span>上划继续</span>
-    </div>`;
-
-  return sec;
-}
-
-/* ══════════════════════════════════════════════════════════
-   联系客服跳转
-══════════════════════════════════════════════════════════ */
-function goToKefu(url) {
-  window.location.href = url;
-}
-
-/* ══════════════════════════════════════════════════════════
    静音管理
 ══════════════════════════════════════════════════════════ */
 let isMuted = true;
@@ -577,74 +319,86 @@ function unmuteAll() {
 }
 
 /* ══════════════════════════════════════════════════════════
-   预加载（仅针对视频，跳过广告页）
+   预加载
 ══════════════════════════════════════════════════════════ */
 let currentVidIdx = 0;
 
-function preload(vidIdx) {
+function preload(idx) {
   videos.forEach((v, i) => {
-    const d = Math.abs(i - vidIdx);
-    if (d === 0 || d <= 2) { if (!v.src) { v.src = videoUrls[i]; v.load(); } }
-    else if (d >= 10) { if (v.src) { v.pause(); v.removeAttribute('src'); v.load(); } }
+    const d = Math.abs(i - idx);
+    if (d <= 2)  { if (!v.src) { v.src = videoUrls[i]; v.load(); } }
+    if (d >= 10) { if (v.src)  { v.pause(); v.removeAttribute('src'); v.load(); } }
   });
 }
 
 /* ══════════════════════════════════════════════════════════
+   广告跳转
+   ─ 在 IntersectionObserver 里，每当切到新视频时判断是否到了广告时机
+   ─ 用 sessionStorage 保存当前视频下标，ad.html 返回后恢复
+   ─ 用 adTplIdx（循环取余）选择广告模板
+══════════════════════════════════════════════════════════ */
+let adTplIdx = 0;
+// 记录哪些广告节点已经触发过（防止重复跳转）
+const shownAdAfter = new Set();
+
+function maybeShowAd(vidIdx) {
+  // 每 AD_INTERVAL 个视频后触发（0-based：第3、6、9...个视频播完后）
+  // 即当 vidIdx 为 2, 5, 8... 时触发（且不是最后一个视频）
+  if (
+    (vidIdx + 1) % AD_INTERVAL === 0 &&
+    vidIdx < videoUrls.length - 1 &&
+    !shownAdAfter.has(vidIdx)
+  ) {
+    shownAdAfter.add(vidIdx);
+
+    // 保存当前位置，ad.html 返回时恢复
+    sessionStorage.setItem('resumeVideoIdx', String(vidIdx + 1));
+
+    // 选择广告模板（循环）
+    const tpl = adTplIdx % AD_TPL_COUNT;
+    adTplIdx++;
+
+    // 短暂延迟，让用户看到当前视频再跳转
+    setTimeout(() => {
+      window.location.href = `${AD_PAGE}?tpl=${tpl}&back=${encodeURIComponent(location.href)}`;
+    }, 800);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
    IntersectionObserver
-   ─ 视频页：控制播放/暂停，恢复操作栏和信息区
-   ─ 广告页：触发淡入动画，隐藏操作栏、信息区和进度条
 ══════════════════════════════════════════════════════════ */
 const observer = new IntersectionObserver(entries => {
   entries.forEach(entry => {
-    const sIdx = sections.indexOf(entry.target);
-    if (sIdx === -1) return;
-    const type  = pageTypes[sIdx];
-    const vIdx  = videoIdxMap[sIdx];
+    const idx = sections.indexOf(entry.target);
+    if (idx === -1) return;
+    const v = videos[idx];
+    if (!v) return;
 
     if (entry.isIntersecting) {
-      if (type === 'ad') {
-        /* ── 广告页进入视口 ── */
-        videos.forEach(v => v.pause());                // 停掉所有视频
-        entry.target.classList.add('ad-visible');      // 淡入动画
-        sideBar.style.opacity = '0';                   // 隐藏操作栏
-        sideBar.style.pointerEvents = 'none';
-        videoInfo.style.opacity = '0';                 // 隐藏视频信息
-        progFill.style.width = '0%';                   // 清空进度条
-      } else {
-        /* ── 视频页进入视口 ── */
-        currentVidIdx = vIdx;
-        const v = videos[vIdx];
-        if (!v.src) v.src = videoUrls[vIdx];
-        v.currentTime = 0;
-        v.muted = isMuted;
-        v.play().catch(() => {});
-        entry.target.classList.remove('paused');
-        startProgress(v);
-        preload(vIdx);
-        // 恢复操作栏和信息区
-        sideBar.style.opacity = '1';
-        sideBar.style.pointerEvents = '';
-        videoInfo.style.opacity = '1';
-        if (vIdx === 0) setTimeout(showMuteBar, 800);
-      }
+      currentVidIdx = idx;
+      if (!v.src) v.src = videoUrls[idx];
+      v.currentTime = 0;
+      v.muted = isMuted;
+      v.play().catch(() => {});
+      entry.target.classList.remove('paused');
+      startProgress(v);
+      preload(idx);
+      if (idx === 0) setTimeout(showMuteBar, 800);
+
+      // 判断是否触发广告跳转
+      maybeShowAd(idx);
+
     } else {
-      /* ── 离开视口 ── */
-      if (type === 'video') {
-        const v = videos[vIdx];
-        v.pause();
-        if (Math.abs(vIdx - currentVidIdx) > 1) v.currentTime = 0;
-        entry.target.classList.remove('paused', 'buffering');
-      }
-      if (type === 'ad') {
-        // 离开后重置，下次进来重新触发淡入
-        entry.target.classList.remove('ad-visible');
-      }
+      v.pause();
+      if (Math.abs(idx - currentVidIdx) > 1) v.currentTime = 0;
+      entry.target.classList.remove('paused', 'buffering');
     }
   });
 }, { threshold: 0.6 });
 
 sections.forEach(s => observer.observe(s));
-preload(0);
+preload(savedIdx || 0);
 setTimeout(showMuteBar, 1000);
 
 /* ══════════════════════════════════════════════════════════
@@ -665,34 +419,28 @@ function startProgress(v) {
 
 /* ══════════════════════════════════════════════════════════
    点击：解除静音 / 暂停播放
-   广告页内部点击不触发此逻辑（.ad-section 被排除）
 ══════════════════════════════════════════════════════════ */
 containerEl.addEventListener('click', e => {
-  if (e.target.closest('.side-bar,.top-nav,.tab-bar,.video-info,.ad-section')) return;
+  if (e.target.closest('.side-bar,.top-nav,.tab-bar,.video-info')) return;
   const sec = e.target.closest('.video-section');
   if (!sec) return;
   const v = sec.querySelector('video');
   if (!v) return;
-
-  if (isMuted) {
-    unmuteAll();
-    if (v.paused) v.play().catch(() => {});
-    return;
-  }
+  if (isMuted) { unmuteAll(); if (v.paused) v.play().catch(()=>{}); return; }
   if (v.paused) { v.play(); sec.classList.remove('paused'); }
   else          { v.pause(); sec.classList.add('paused'); }
 });
 
 containerEl.addEventListener('touchstart', () => {
   if (isMuted) unmuteAll();
-}, { passive: true });
+}, { passive:true });
 
 /* ══════════════════════════════════════════════════════════
-   双击飘心（仅视频页）
+   双击飘心
 ══════════════════════════════════════════════════════════ */
 let lastTap = 0;
 containerEl.addEventListener('touchend', e => {
-  if (e.target.closest('.side-bar,.top-nav,.tab-bar,.video-info,.ad-section')) return;
+  if (e.target.closest('.side-bar,.top-nav,.tab-bar,.video-info')) return;
   const now = Date.now();
   if (now - lastTap < 280) {
     const t = e.changedTouches[0];
@@ -712,7 +460,7 @@ function spawnHeart(x, y) {
 }
 
 /* ══════════════════════════════════════════════════════════
-   互动功能
+   互动
 ══════════════════════════════════════════════════════════ */
 let liked = false;
 function toggleLike() {
@@ -738,13 +486,12 @@ function handleFollow(e) {
   showToast('已关注');
 }
 
-function goToProfile() { window.open(PROFILE_URL, '_blank'); }
+function goToProfile() { window.open(PROFILE_URL,'_blank'); }
 
 let toastTimer;
 function showToast(text) {
   const t = document.getElementById('toast');
-  t.textContent = text;
-  t.classList.add('show');
+  t.textContent = text; t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
 }
