@@ -1,4 +1,3 @@
-广告编辑版
 广告完整版
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -420,29 +419,129 @@ body {
        防拦截：class=video-item product-page
        按钮文案：了解详情 / 查看方案
   ══════════════════════════════════════════ -->
+  <div class="video-item product-page" data-page-type="content" id="productPage1">
+    <div class="page-glow"></div>
+    <div class="page-scroll">
+      <div class="page-body">
 
-  <div <div class="page-category">会员介绍</div>
-        <div class="page-title">开通会员20元<br></div>
-        <div class="page-desc">会员权益</div>
+        <div class="page-img">
+          <svg viewBox="0 0 148 148" xmlns="http://www.w3.org/2000/svg">
+            <rect width="148" height="148" fill="#120d1e"/>
+            <ellipse cx="74" cy="74" rx="46" ry="60" fill="#2a1540" stroke="rgba(254,44,85,0.22)" stroke-width="1"/>
+            <rect x="54" y="51" width="40" height="46" rx="9" fill="url(#p1g)"/>
+            <defs><linearGradient id="p1g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fe2c55"/><stop offset="100%" stop-color="#ffaabb"/></linearGradient></defs>
+            <rect x="62" y="43" width="24" height="12" rx="5" fill="#1a0d2e"/>
+            <text x="74" y="77" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.9)" font-family="sans-serif" font-weight="700">SKINCARE</text>
+            <text x="74" y="89" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,0.5)" font-family="sans-serif">PRO · SERUM</text>
+            <circle cx="74" cy="21" r="10" fill="rgba(254,44,85,0.1)" stroke="rgba(254,44,85,0.25)" stroke-width="1"/>
+            <circle cx="74" cy="21" r="3.5" fill="#fe2c55" opacity="0.7"/>
+          </svg>
+        </div>
+
+        <div class="page-category">产品介绍</div>
+        <div class="page-title">28天肌肤焕新<br>科学护肤方案</div>
+        <div class="page-desc">含烟酰胺 + 玻色因双效配方，结合皮肤科学研究成果，针对熬夜肌、暗沉肌的专属修护方案</div>
         <div class="page-divider"></div>
 
         <div class="feature-list">
           <div class="feature-item">
             <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
-            <div class="feature-text"><b>会员权益一</b>解锁全部视频–完整版视频</div>
+            <div class="feature-text"><b>深层补水锁水</b>透明质酸三重复合，8小时持续保湿</div>
           </div>
           <div class="feature-item">
             <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
-            <div class="feature-text"><b>会员权益二</b>解锁功能-同城互约-直播</div>
+            <div class="feature-text"><b>淡纹紧致提亮</b>玻色因 + 胜肽协同，28天可见改善</div>
           </div>
           <div class="feature-item">
             <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg></div>
-            <div class="feature-text"><b>会员权益三</b>20元永久使用-终身会员</div>
+            <div class="feature-text"><b>温和配方无刺激</b>经皮肤科测试，敏感肌可安心使用</div>
           </div>
-        </div>class="video-item product-page" data-page-type="content" id="productPage1">
+        </div>
+ <div class="tag-row">
+          <span class="tag-pill">修护熬夜肌</span>
+          <span class="tag-pill">淡化细纹</span>
+          <span class="tag-pill">深层补水</span>
+          <span class="tag-pill">敏感肌可用</span>
+
+        <!--
+          防拦截核心：
+          1. 使用 <button> + onclick JS跳转，不用 <a href>
+          2. 文案：「了解详情」而非「立即购买/联系客服」
+        -->
+        <button class="page-cta" onclick="openService('product')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+          了解详情
+        </button>
+        <button class="page-sub-btn" onclick="continueFeed()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+          继续浏览
+        </button>
+        <div class="page-note">内容由品牌方提供 · 滑动继续</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       内容页 #2：服务说明页（service-page）
+       防拦截：class=video-item service-page
+       按钮文案：查看方案 / 获取帮助
+  ══════════════════════════════════════════ -->
+  <div class="video-item service-page" data-page-type="content" id="servicePage1">
     <div class="page-glow"></div>
     <div class="page-scroll">
       <div class="page-body">
+
+        <div class="page-img">
+          <svg viewBox="0 0 148 148" xmlns="http://www.w3.org/2000/svg">
+            <rect width="148" height="148" fill="#060e18"/>
+            <path d="M30 74 Q30 24 74 24 Q118 24 118 74" stroke="#25f4ee" stroke-width="12" fill="none" stroke-linecap="round"/>
+            <rect x="18" y="69" width="20" height="33" rx="8" fill="#132030" stroke="#25f4ee" stroke-width="1.5"/>
+            <rect x="110" y="69" width="20" height="33" rx="8" fill="#132030" stroke="#25f4ee" stroke-width="1.5"/>
+            <circle cx="28"  cy="88" r="5" fill="#25f4ee" opacity="0.5"/>
+            <circle cx="120" cy="88" r="5" fill="#25f4ee" opacity="0.5"/>
+            <circle cx="74" cy="74" r="18" fill="rgba(37,244,238,0.04)" stroke="rgba(37,244,238,0.16)" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <div class="page-category">服务说明</div>
+        <div class="page-title">专业降噪方案<br>沉浸声学体验</div>
+        <div class="page-desc">40dB主动降噪技术，36小时超长续航，四麦克风阵列智能识别环境噪声，专为专注工作与沉浸娱乐设计</div>
+        <div class="page-divider"></div>
+
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg></div>
+            <div class="feature-text"><b>40dB 主动降噪</b>四麦阵列，精准拾音过滤环境杂音</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg></div>
+            <div class="feature-text"><b>36小时续航</b>充电15分钟，即可续航3小时</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/></svg></div>
+            <div class="feature-text"><b>55ms 超低延迟</b>游戏模式专属优化，帧帧同步</div>
+          </div>
+        </div>
+
+        <div class="tag-row">
+          <span class="tag-pill">主动降噪</span>
+          <span class="tag-pill">36h续航</span>
+          <span class="tag-pill">游戏模式</span>
+          <span class="tag-pill">快速充电</span>
+        </div>
+
+        <button class="page-cta" onclick="openService('service')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+          查看方案
+        </button>
+        <button class="page-sub-btn" onclick="continueFeed()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+          继续浏览
+        </button>
+        <div class="page-note">内容由服务方提供 · 滑动继续</div>
+      </div>
+    </div>
+  </div>
 
   <!-- ══════════════════════════════════════════
        内容页 #3：用户案例页（case-page）
