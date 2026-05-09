@@ -1,4 +1,3 @@
-同城第二代
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -49,32 +48,34 @@ backdrop-filter:blur(4px);
 }
 .media-box .video-badge svg { width:10px; height:10px; }
 
+/* ── 仅修改以下下半屏布局参数 ── */
 .lower-half {
 flex:1;
 display:flex;
 flex-direction:column;
 justify-content: flex-start;
 align-items:center;
-padding: 10px 25px;
+padding: 10px 25px; /* 恢复原版内边距 */
 }
 
 .profile-card { width:100%; max-width:340px; position:relative; }
 .hero-info { margin-bottom:15px; text-align:left; width:100%; }
 .name-row { display:flex; align-items:baseline; gap:10px; }
-.artist-name { font-size:32px; font-weight:800; letter-spacing:-1px; }
+.artist-name { font-size:32px; font-weight:800; letter-spacing:-1px; } /* 32px极粗 */
 .region-tag { font-size:13px; color:rgba(255,255,255,0.5); display:flex; align-items:center; gap:4px; }
 .stats-grid { display:flex; gap:12px; width:100%; margin-bottom:20px; }
 .stat-pill {
-flex:1; background:var(--glass); padding:12px; border-radius:14px;
+flex:1; background:var(--glass); padding:12px; border-radius:14px; /* 14px圆角 */
 border:1px solid rgba(255,255,255,0.08); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
 }
 .stat-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:4px; display:block; }
 .stat-value { font-size:17px; font-weight:600; color:#fff; }
 .stat-value.highlight { color:#fac300; }
-.action-btn { width:100%; height:54px; border-radius:16px; border:none; background:#fff; color:#000; font-size:16px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 10px 30px rgba(255,255,255,0.15); transition:transform 0.2s; cursor:pointer; -webkit-appearance:none; }
+.action-btn { width:100%; height:54px; border-radius:16px; border:none; background:#fff; color:#000; font-size:16px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 10px 30px rgba(255,255,255,0.15); transition:transform 0.2s; cursor:pointer; -webkit-appearance:none; } /* 54px高度 */
 .action-btn:active { transform:scale(0.96); }
 .action-btn svg { width:20px; height:20px; }
 .bg-glow { position:absolute; width:150px; height:150px; background:radial-gradient(circle,rgba(254,44,85,0.2) 0%,transparent 70%); z-index:-1; top:-20px; right:-20px; pointer-events:none; }
+/* ── 下半屏参数结束 ── */
 
 .mask-top { position:fixed; top:0; left:0; right:0; height:120px; background:linear-gradient(to bottom,rgba(0,0,0,0.5),transparent); z-index:2; pointer-events:none; }
 .top-nav { position:fixed; top:var(--safe-top); left:0; right:0; z-index:100; display:flex; align-items:center; padding:0 12px; height:44px; }
@@ -161,7 +162,7 @@ border:1px solid rgba(255,255,255,0.08); backdrop-filter:blur(12px); -webkit-bac
 <script>
 /* ── 1. 数据配置 ── */
 const pagesData = [
-  { name:"小星星", fee:"10.00", area:"", media:[{type:"image",src:""},{type:"image",src:""},{type:"image",src:""},{type:"image",src:""},{type:"image",src:""},{type:"image",src:""}] },
+  { name:"小星星", fee:"10.00", area:"", media:[{type:"image",src:"https://pub-1ddb46d546034a6e945c9c42603bb8ce.r2.dev/1/IMG_1887.jpeg"},{type:"image",src:"https://pub-1ddb46d546034a6e945c9c42603bb8ce.r2.dev/1/IMG_1886.jpeg"},{type:"image",src:"https://pub-1ddb46d546034a6e945c9c42603bb8ce.r2.dev/1/IMG_1885.jpeg"},{type:"image",src:"https://pub-1ddb46d546034a6e945c9c42603bb8ce.r2.dev/1/IMG_1889.jpeg"},{type:"image",src:"https://pub-1ddb46d546034a6e945c9c42603bb8ce.r2.dev/1/-1797359644996242404.mp4"},{type:"image",src:"https://pub-1ddb46d546034a6e945c9c42603bb8ce.r2.dev/1/IMG_1890.jpeg"}] },
   { name:"喵喵酱", fee:"15.00", area:"", media:[{type:"image",src:""},{type:"image",src:""},{type:"video",src:"",poster:""},{type:"image",src:""},{type:"image",src:""},{type:"image",src:""}] },
   { name:"安琪拉", fee:"20.00", area:"", media:[{type:"image",src:""},{type:"image",src:""},{type:"image",src:""},{type:"image",src:""},{type:"image",src:""},{type:"image",src:""}] },
   { name:"大白兔", fee:"12.00", area:"", media:[{type:"image",src:""},{type:"image",src:""},{type:"image",src:""},{type:"image",src:""},{type:"image",src:""},{type:"image",src:""}] },
@@ -332,5 +333,3 @@ function showToast(t){
 
 </body>
 </html>
-</html>
-
