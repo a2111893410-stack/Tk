@@ -1,3 +1,4 @@
+同城第二代
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -133,8 +134,8 @@ border:1px solid rgba(255,255,255,0.08); backdrop-filter:blur(12px); -webkit-bac
 <div id="feed"></div>
 
 <div class="tab-bar">
-  <div class="tab-item active"><span class="tab-label">首页</span></div>
-  <div class="tab-item" onclick="showToast('开通会员使用')"><span class="tab-label">同城</span></div>
+  <div class="tab-item" onclick="showToast('开通会员使用')"><span class="tab-label">首页</span></div>
+  <div class="tab-item active"><span class="tab-label">同城</span></div>
   <div class="tab-publish" onclick="showToast('开通会员使用')"><div class="pub-inner">+</div></div>
   <div class="tab-item" onclick="showToast('开通会员使用')"><span class="tab-label">消息</span></div>
   <div class="tab-item" onclick="showToast('开通会员使用')"><span class="tab-label">我</span></div>
@@ -245,18 +246,30 @@ function startLocate() {
   }, 4000);
 }
 
-/* ── 4. 滚动监听：最后一个视频下滑提示 ── */
+/* ── 4. 优化版滑动提示：最后一页再次上滑才显示 ── */
 (function(){
-  let isEndToastShowing = false;
-  feed.addEventListener('scroll', function() {
-    // 允许 5 像素的误差
-    const isAtBottom = feed.scrollHeight - feed.scrollTop <= feed.clientHeight + 5;
+  let isToastLocked = false;
+  let startTouchY = 0;
+
+  feed.addEventListener('touchstart', function(e) {
+    startTouchY = e.touches[0].pageY;
+  }, { passive: true });
+
+  feed.addEventListener('touchmove', function(e) {
+    if (isToastLocked) return;
+
+    // 检查是否在最后一页（已滚动到最底部，5px误差）
+    const isAtBottom = feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 5;
     
-    if (isAtBottom && !isEndToastShowing) {
-      isEndToastShowing = true;
-      showToast('没有更多了');
-      // 2秒内不再重复触发
-      setTimeout(() => { isEndToastShowing = false; }, 2000);
+    if (isAtBottom) {
+      let moveTouchY = e.touches[0].pageY;
+      // startTouchY - moveTouchY > 50 表示手指向上滑动超过50px（即用户想继续看下一页）
+      if (startTouchY - moveTouchY > 50) { 
+        isToastLocked = true;
+        showToast('没有更多了');
+        // 3秒内防止重复触发
+        setTimeout(() => { isToastLocked = false; }, 3000);
+      }
     }
   }, { passive: true });
 })();
@@ -318,3 +331,6 @@ function showToast(t){
 </script>
 
 </body>
+</html>
+</html>
+
