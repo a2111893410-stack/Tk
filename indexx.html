@@ -237,7 +237,7 @@ for (let i = 0; i < 10; i++) {
    3. 获取真实IP定位并无感替换
 ════════════════════════════════════════════════════════════ */
 // 使用一个免费的公共 API 获取访客地理位置 (返回带 city 的 JSON)
-fetch('https://ipapi.co/json/')
+fetch('https://myip.ipip.net/json')
   .then(response => response.json())
   .then(data => {
     // 如果成功获取到了城市名（比如 "Chengdu" 或 "北京市"）
