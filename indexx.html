@@ -329,31 +329,16 @@ feed.addEventListener('scroll', function () {
   try { sessionStorage.setItem('feedPage', idx); } catch (e) {}
 }, { passive: true });
 
-/* ── 9. 后台恢复：时间差检测，超时直接重载 ── */
-let hiddenAt = 0;
+/* ── 9. 后台恢复：离开过就直接重载 ── */
+let hasHidden = false;
 document.addEventListener('visibilitychange', function () {
   if (document.visibilityState === 'hidden') {
-    hiddenAt = Date.now();
+    hasHidden = true;
     return;
   }
-
-  // 回到前台
-  const away = Date.now() - hiddenAt;
-
-  // 离开超过 5 秒直接重载，位置由 sessionStorage 自动恢复
-  if (hiddenAt > 0 && away > 5000) {
+  if (hasHidden) {
     location.reload();
-    return;
   }
-
-  // 15 秒内回来，轻量校正 snap 位置
-  const pageH = feed.clientHeight;
-  const idx = Math.round(feed.scrollTop / pageH);
-  feed.style.scrollSnapType = 'none';
-  feed.scrollTop = idx * pageH;
-  requestAnimationFrame(() => {
-    feed.style.scrollSnapType = 'y mandatory';
-  });
 });
 
 /* ── 10. Service Worker 注册（图片缓存，reload 后秒出）── */
