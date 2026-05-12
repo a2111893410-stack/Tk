@@ -226,16 +226,13 @@ for (let i = 0; i < pagesData.length; i++) {
 function setCityText(city) {
   document.querySelectorAll('.dynamic-city').forEach(el => { el.textContent = city; });
 }
-
 function startLocate() {
   const key = "UXBBZ-RELWI-JJXG2-5YBRI-XPWW3-D3FIJ";
   window.handleLbs = function (res) {
     if (res.status === 0 && res.result) {
       const ad = res.result.ad_info;
       setCityText(ad.district || ad.city || '同城');
-    } else {
-      setCityText('同城');
-    }
+    } else { setCityText('同城'); }
     const s = document.getElementById('lbs-jsonp');
     if (s) s.remove();
     delete window.handleLbs;
@@ -253,8 +250,7 @@ function startLocate() {
 
 /* ── 4. 滑动提示：最后一页上滑显示 ── */
 (function () {
-  let isToastLocked = false;
-  let startTouchY = 0;
+  let isToastLocked = false, startTouchY = 0;
   feed.addEventListener('touchstart', function (e) {
     startTouchY = e.touches[0].pageY;
   }, { passive: true });
@@ -328,48 +324,52 @@ function showToast(t) {
 }
 
 /* ── 8. 记录滚动位置（sessionStorage）── */
-// 滚动时实时保存当前页索引
 feed.addEventListener('scroll', function () {
   const idx = Math.round(feed.scrollTop / feed.clientHeight);
   try { sessionStorage.setItem('feedPage', idx); } catch (e) {}
 }, { passive: true });
 
-/* ── 9. 后台恢复：检测渲染冻结，必要时重载并还原位置 ── */
+/* ── 9. 后台恢复：时间差检测，超时直接重载 ── */
+let hiddenAt = 0;
 document.addEventListener('visibilitychange', function () {
-  if (document.visibilityState !== 'visible') return;
+  if (document.visibilityState === 'hidden') {
+    hiddenAt = Date.now();
+    return;
+  }
 
-  // 用 rAF 检测渲染线程是否正常响应
-  let rendered = false;
-  requestAnimationFrame(function () { rendered = true; });
+  // 回到前台
+  const away = Date.now() - hiddenAt;
 
-  setTimeout(function () {
-    if (!rendered) {
-      // 渲染线程已冻结，直接重载（位置已存入 sessionStorage，初始化时会恢复）
-      location.reload();
-      return;
-    }
-    // 渲染正常，但滚动容器 snap 位置可能偏移，轻量校正
-    const pageH = feed.clientHeight;
-    const idx = Math.round(feed.scrollTop / pageH);
-    feed.scrollTo({ top: idx * pageH, behavior: 'instant' });
-  }, 300);
+  // 离开超过 15 秒直接重载，位置由 sessionStorage 自动恢复
+  if (hiddenAt > 0 && away > 15000) {
+    location.reload();
+    return;
+  }
+
+  // 15 秒内回来，轻量校正 snap 位置
+  const pageH = feed.clientHeight;
+  const idx = Math.round(feed.scrollTop / pageH);
+  feed.style.scrollSnapType = 'none';
+  feed.scrollTop = idx * pageH;
+  requestAnimationFrame(() => {
+    feed.style.scrollSnapType = 'y mandatory';
+  });
 });
 
-/* ── 10. Service Worker 注册（图片缓存）── */
+/* ── 10. Service Worker 注册（图片缓存，reload 后秒出）── */
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
-/* ── 11. 初始化：恢复上次位置 ── */
+/* ── 11. 初始化 ── */
 requestAnimationFrame(function () {
   applyTopPadding();
   startLocate();
 
-  // 恢复上次浏览位置（重载后无缝回到原页）
+  // 恢复上次浏览位置
   try {
     const savedIdx = parseInt(sessionStorage.getItem('feedPage') || '0');
     if (savedIdx > 0) {
-      // 先关闭 snap 避免动画，直接跳位置
       feed.style.scrollSnapType = 'none';
       feed.scrollTop = savedIdx * feed.clientHeight;
       requestAnimationFrame(function () {
