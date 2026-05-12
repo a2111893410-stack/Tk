@@ -1,8 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-store">
 <title>推荐</title>
 <style>
 :root {
@@ -323,45 +325,64 @@ function showToast(t) {
   setTimeout(() => el.classList.remove('show'), 1600);
 }
 
-/* ── 8. 记录滚动位置（sessionStorage）── */
-feed.addEventListener('scroll', function () {
-  const idx = Math.round(feed.scrollTop / feed.clientHeight);
-  try { sessionStorage.setItem('feedPage', idx); } catch (e) {}
-}, { passive: true });
+/* ── 8. 轻量遮罩防黑屏（不 reload，无依赖）── */
+(function () {
+  // 创建与背景同色的遮罩层
+  var mask = document.createElement('div');
+  mask.style.cssText = [
+    'position:fixed', 'inset:0',
+    'background:#050508',
+    'z-index:99998',           // 低于 preview-overlay(5000) 但高于一切内容
+    'display:none',
+    'pointer-events:none',
+    'transition:opacity 0.2s'
+  ].join(';');
+  document.body.appendChild(mask);
 
-/* ── 9. 后台恢复：离开过就直接重载 ── */
-let hasHidden = false;
-document.addEventListener('visibilitychange', function () {
-  if (document.visibilityState === 'hidden') {
-    hasHidden = true;
-    return;
+  function showMask() {
+    mask.style.opacity = '1';
+    mask.style.display = 'block';
   }
-  if (hasHidden) {
-    location.reload();
-  }
-});
 
-/* ── 10. Service Worker 注册（图片缓存，reload 后秒出）── */
+  function hideMask() {
+    // 强制触发完整重绘，再移除遮罩
+    document.body.style.transform = 'translateZ(0)';
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        document.body.style.transform = '';
+        mask.style.opacity = '0';
+        setTimeout(function () { mask.style.display = 'none'; }, 200);
+      });
+    });
+  }
+
+  // iOS BFCache 恢复
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) {
+      showMask();
+      hideMask();
+    }
+  });
+
+  // 通用：切后台盖住，回来重绘后揭开
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') {
+      showMask();
+      return;
+    }
+    hideMask();
+  });
+})();
+
+/* ── 9. Service Worker 注册（图片缓存）── */
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
-/* ── 11. 初始化 ── */
+/* ── 10. 初始化 ── */
 requestAnimationFrame(function () {
   applyTopPadding();
   startLocate();
-
-  // 恢复上次浏览位置
-  try {
-    const savedIdx = parseInt(sessionStorage.getItem('feedPage') || '0');
-    if (savedIdx > 0) {
-      feed.style.scrollSnapType = 'none';
-      feed.scrollTop = savedIdx * feed.clientHeight;
-      requestAnimationFrame(function () {
-        feed.style.scrollSnapType = 'y mandatory';
-      });
-    }
-  } catch (e) {}
 });
 </script>
 
