@@ -340,9 +340,9 @@ document.addEventListener('visibilitychange', function () {
   // 回到前台
   const away = Date.now() - hiddenAt;
 
-  // 离开超过 15 秒直接重载，位置由 sessionStorage 自动恢复
-  if (hiddenAt > 0 && away > 15000) {
-    location.reload(5);
+  // 离开超过 5 秒直接重载，位置由 sessionStorage 自动恢复
+  if (hiddenAt > 0 && away > 5000) {
+    location.reload();
     return;
   }
 
